@@ -3,8 +3,8 @@ import { UnitsService } from '../services/units.service';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UpdateUnitDto } from '../dto/update-unit.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guard/role.guard';
+import { JwtAuthGuard } from '../../../common/guard/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guard/role.guard';
 
 @ApiTags('units')
 @ApiBearerAuth()

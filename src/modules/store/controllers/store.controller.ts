@@ -3,8 +3,8 @@ import { StoreService } from '../services/store.service';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guard/role.guard';
+import { JwtAuthGuard } from '../../../common/guard/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guard/role.guard';
 
 @ApiTags('store')
 @ApiBearerAuth()

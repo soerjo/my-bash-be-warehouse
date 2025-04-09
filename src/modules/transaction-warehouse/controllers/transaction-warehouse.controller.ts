@@ -3,8 +3,8 @@ import { TransactionWarehouseService } from '../services/transaction-warehouse.s
 import { CreateTransactionWarehouseDto } from '../dto/create-transaction-warehouse.dto';
 import { UpdateTransactionWarehouseDto } from '../dto/update-transaction-warehouse.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guard/role.guard';
+import { JwtAuthGuard } from '../../../common/guard/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guard/role.guard';
 
 @ApiTags('transaction-warehouse')
 @ApiBearerAuth()
