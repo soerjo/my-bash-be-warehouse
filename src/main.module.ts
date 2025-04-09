@@ -4,15 +4,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeormConfig from './config/typeorm.config';
 import appConfig from './config/app.config';
-
-import { AuthModule } from './modules/auth/auth.module';
-
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { HttpExceptionFilter } from './common/interceptor/http-exception.interceptor';
-import { ExampleModule } from './modules/example/example.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { CategoryModule } from './modules/category/category.module';
+import { UnitsModule } from './modules/units/units.module';
+import { WarehouseModule } from './modules/warehouse/warehouse.module';
+import { StoreModule } from './modules/store/store.module';
+import { TransactionWarehouseModule } from './modules/transaction-warehouse/transaction-warehouse.module';
+import { TransactionStoreModule } from './modules/transaction-store/transaction-store.module';
 
 @Module({
   imports: [
@@ -35,8 +37,12 @@ import { DataSource } from 'typeorm';
     JwtModule.register({
       global: true,
     }),
-    AuthModule,
-    ExampleModule,
+    CategoryModule,
+    UnitsModule,
+    WarehouseModule,
+    StoreModule,
+    TransactionWarehouseModule,
+    TransactionStoreModule,
     // other module...
   ],
   providers: [
