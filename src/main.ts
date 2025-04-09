@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './main.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { SwaggerTheme, SwaggerThemeName } from 'swagger-themes';
+import { SwaggerTheme } from 'swagger-themes';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { AdvancedFilterPlugin } from './utils/swagger-plugin.util';
@@ -20,20 +20,32 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({ credentials: true });
-  // app.use(morgan('tiny'));
+  // app.use(morgan('short'));
 
   const theme = new SwaggerTheme();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(':v/docs', app, document, {
+  SwaggerModule.setup('/docs', app, document, {
     swaggerOptions: {
       filter: true, // Enable the search bar
       showRequestDuration: true, // Show the duration of each request
       plugins: [AdvancedFilterPlugin],
     },
-    customCss: theme.getBuffer('flattop' as SwaggerThemeName),
+    // customCss: theme.getBuffer('flattop' as SwaggerThemeName),
     customSiteTitle: 'Boilerplate Documentation',
+    useGlobalPrefix: true,    
+    customJs: [
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js",
+    ],
+    customCssUrl: [
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css",
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.css",
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.css",
+    ],
+
   });
 
   await app.listen(configService.get('PORT'));
