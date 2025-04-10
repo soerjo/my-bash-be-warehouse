@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { FindCategoryDto } from '../dto/find-category.dto';
+import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
+import { CategoryRepository } from '../repositories/category.repository';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(private readonly categoryRepository: CategoryRepository) {}
+
+  async create(dto: CreateCategoryDto, userPayload: IJwtPayload) {
+    const category = await this.categoryRepository.findOne({
+      where: {
+        name: dto.name,
+        ...(dto.code ? { code: dto.code } : {}),
+        bank_id: userPayload.bank_id,
+        warehouse_id: userPayload.warehouse_id,
+      }
+    })
+    if(category) throw new BadRequestException('Category already exists');
+
+    const newCategory = this.categoryRepository.create({
+      ...dto,
+      code: dto.code ?? dto.name.toUpperCase(),
+      created_by: userPayload.id,
+      bank_id: userPayload.bank_id,
+      warehouse_id: userPayload.warehouse_id,
+    });
+    
+    return this.categoryRepository.save(newCategory);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  findAll(dto: FindCategoryDto, userPayload: IJwtPayload) {
+    return this.categoryRepository.findAll(dto, userPayload);
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} category`;
+    return this.categoryRepository.findOneBy({id});
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto, userPayload: IJwtPayload) {
+    const category = await this.findOne(id);
+    if(!category) throw new Error('Unit not found');
+    return this.categoryRepository.update(id, {
+      ...category,
+      ...updateCategoryDto,
+      updated_by: userPayload.id,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number, userPayload: IJwtPayload) {
+    const unit = await this.findOne(id);
+    if(!unit) throw new Error('Unit not found');
+
+    unit.deleted_by = userPayload.id;
+    return this.categoryRepository.softRemove(unit)
   }
 }

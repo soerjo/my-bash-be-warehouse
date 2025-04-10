@@ -5,9 +5,6 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 @Entity({ name: 'category', schema: 'warehouse' })
 export class CategoryEntity extends MainEntityAbstract {
-    @Column({unique: true})
-    category_id: number;
-
     @Column()
     name: string;
 
@@ -23,11 +20,11 @@ export class CategoryEntity extends MainEntityAbstract {
     @Column({nullable: true})
     warehouse_id: number;
 
-    @Column({nullable: true})
-    unit_id?: string;
+    @Column()
+    unit_id: number;
 
     @ManyToOne(() => UnitEntity)
-    @JoinColumn({ name: 'unit_id', referencedColumnName: 'unit_id'  })
+    @JoinColumn({ name: 'unit_id', referencedColumnName: 'id'  })
     unit_type: UnitEntity;
 
     @ManyToOne(() => WarehouseEntity)

@@ -4,14 +4,14 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 @Entity({ name: 'unit', schema: 'warehouse' })
 export class UnitEntity extends MainEntityAbstract {
-    @Column({unique: true})
-    unit_id: number;
-
     @Column()
     name: string;
 
     @Column()
     code: string;
+
+    @Column({nullable: true})
+    bank_id: number;
 
     @Column({nullable: true})
     warehouse_id: number;

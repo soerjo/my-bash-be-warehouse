@@ -1,26 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UpdateUnitDto } from '../dto/update-unit.dto';
+import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
+import { FindUnitDto } from '../dto/find-unit.dto';
+import { UnitsRepository } from '../repositories/unit.repository';
 
 @Injectable()
 export class UnitsService {
-  create(createUnitDto: CreateUnitDto) {
-    return 'This action adds a new unit';
+  constructor(private readonly unitRepository: UnitsRepository) {}
+  
+  async create(dto: CreateUnitDto, userPayload: IJwtPayload) {
+    const unit = await this.unitRepository.findOne({
+      where: {
+        name: dto.name,
+        bank_id: userPayload.bank_id,
+        warehouse_id: userPayload.warehouse_id,
+      }
+    })
+    if(unit) throw new Error('Unit already exists');
+    
+    const newUnit = this.unitRepository.create({
+      ...dto,
+      code: dto.code ?? dto.name.toUpperCase(),
+      bank_id: userPayload.bank_id,
+      warehouse_id: userPayload.warehouse_id,
+      created_by: userPayload.id,
+    });
+
+    return this.unitRepository.save(newUnit);
   }
 
-  findAll() {
-    return `This action returns all units`;
+  findAll(dto: FindUnitDto, userPayload: IJwtPayload) {
+    return this.unitRepository.findAll(dto, userPayload);
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} unit`;
+    return this.unitRepository.findOneBy({id});
   }
 
-  update(id: number, updateUnitDto: UpdateUnitDto) {
-    return `This action updates a #${id} unit`;
+  async update(id: number, updateUnitDto: UpdateUnitDto, userPayload: IJwtPayload) {
+    const unit = await this.findOne(id);
+    if(!unit) throw new Error('Unit not found');
+    return this.unitRepository.update(id, {
+      ...unit,
+      ...updateUnitDto,
+      updated_by: userPayload.id,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} unit`;
+  async remove(id: number, userPayload: IJwtPayload) {
+    const unit = await this.findOne(id);
+    if(!unit) throw new Error('Unit not found');
+
+    unit.deleted_by = userPayload.id;
+    return this.unitRepository.softRemove(unit)
   }
 }

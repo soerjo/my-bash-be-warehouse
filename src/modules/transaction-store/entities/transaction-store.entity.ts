@@ -1,29 +1,69 @@
 import { MainEntityAbstract } from "../../../common/abstract/main-entity.abstract";
-import { CategoryEntity } from "../../../modules/category/entities/category.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TransactionStatusEntity } from "./transaction-status.entity";
 import { TransactionTypeEntity } from "./transaction-type.entity";
 import { WarehouseEntity } from "../../../modules/warehouse/entities/warehouse.entity";
+import { StoreEntity } from "../../../modules/store/entities/store.entity";
+import Decimal from "decimal.js";
 
 @Entity({ name: 'transaction-store', schema: 'warehouse' })
 export class TransactionStoreEntity extends MainEntityAbstract {
     @Column()
     transaction_id: string;
 
-    @Column({type: 'decimal'})
-    price_per_unit: number;
+    @Column({
+        default: 0, 
+        type: 'decimal',
+        precision: 18,
+        scale: 4,
+        transformer: {
+          to: (value: Decimal | string | number): string => {
+            return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
+          },
+          from: (value: string): Decimal => {
+            return new Decimal(value ?? 0);
+          },
+        },
+    })
+    price_per_unit: Decimal;
 
-    @Column({type: 'decimal'})
-    amount: number;
+    @Column({
+        default: 0, 
+        type: 'decimal',
+        precision: 18,
+        scale: 4,
+        transformer: {
+          to: (value: Decimal | string | number): string => {
+            return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
+          },
+          from: (value: string): Decimal => {
+            return new Decimal(value ?? 0);
+          },
+        },
+    })
+    amount: Decimal;
 
-    @Column({type: 'decimal'})
-    total_price: number;
+    @Column({
+        default: 0, 
+        type: 'decimal',
+        precision: 18,
+        scale: 4,
+        transformer: {
+          to: (value: Decimal | string | number): string => {
+            return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
+          },
+          from: (value: string): Decimal => {
+            return new Decimal(value ?? 0);
+          },
+        },
+    })
+    total_price: Decimal;
 
     @Column()
     transaction_type_id: number; // 1: deposit, 2: withdraw, 3: transfer
 
-    @Column()
-    message: string;
+    @Column({nullable: true})
+    message?: string;
 
     @Column()
     transaction_status_id: number; // 1: pending, 2: success, 3: failed
@@ -35,7 +75,7 @@ export class TransactionStoreEntity extends MainEntityAbstract {
     warehouse_id: number;
 
     @Column({nullable: true})
-    category_id?: string;
+    store_id?: number;
 
     @ManyToOne(() => TransactionStatusEntity)
     @JoinColumn({ name: 'transaction_status_id', referencedColumnName: 'transaction_status_id'  })
@@ -45,9 +85,9 @@ export class TransactionStoreEntity extends MainEntityAbstract {
     @JoinColumn({ name: 'transaction_type_id', referencedColumnName: 'transaction_type_id'  })
     transactionType: TransactionTypeEntity;
 
-    @ManyToOne(() => CategoryEntity)
-    @JoinColumn({ name: 'category_id', referencedColumnName: 'category_id'  })
-    category_type: CategoryEntity;
+    @ManyToOne(() => StoreEntity)
+    @JoinColumn({ name: 'store_id', referencedColumnName: 'id'  })
+    store: StoreEntity;
 
     @ManyToOne(() => WarehouseEntity)
     @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id'  })

@@ -37,9 +37,9 @@ import { TransactionStoreModule } from './modules/transaction-store/transaction-
     JwtModule.register({
       global: true,
     }),
+    WarehouseModule,
     CategoryModule,
     UnitsModule,
-    WarehouseModule,
     StoreModule,
     TransactionWarehouseModule,
     TransactionStoreModule,

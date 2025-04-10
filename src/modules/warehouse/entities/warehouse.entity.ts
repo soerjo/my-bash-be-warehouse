@@ -8,4 +8,7 @@ export class WarehouseEntity extends MainEntityAbstract {
 
   @Column({ unique: true })
   code: string;
+
+  @Column({nullable: true})
+  bank_id: number;
 }
