@@ -11,7 +11,7 @@ export class UnitsRepository extends Repository<UnitEntity> {
     }
 
 
-        async findAll(dto: FindUnitDto, userPayload: IJwtPayload, manager?: EntityManager) {
+        async findAll(dto: FindUnitDto, manager?: EntityManager) {
             const repo = manager ? manager.getRepository(UnitEntity) : this;
             const queryBuilder = repo.createQueryBuilder('unit');
             queryBuilder.select([

@@ -25,7 +25,7 @@ export class CategoryEntity extends MainEntityAbstract {
 
     @ManyToOne(() => UnitEntity)
     @JoinColumn({ name: 'unit_id', referencedColumnName: 'id'  })
-    unit_type: UnitEntity;
+    unit: UnitEntity;
 
     @ManyToOne(() => WarehouseEntity)
     @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id'  })

@@ -17,8 +17,13 @@ export class StoreService {
   ) {}
 
   async create(createStoreDto: CreateStoreDto, userPayload: IJwtPayload) {
-    const store = await this.storeRepository.findOneBy({
-      category_id: createStoreDto.category_id, 
+    const store = await this.storeRepository.findOne({
+      where: {
+        category_id: createStoreDto.category_id, 
+        name: createStoreDto.name,
+        bank_id: userPayload.bank_id,
+        warehouse_id: userPayload.warehouse_id,
+      }
     });
     if(store) throw new BadRequestException('Store already exists');
 
@@ -26,7 +31,8 @@ export class StoreService {
     if(!category) throw new BadRequestException('Category not found');
 
     const newStore = this.storeRepository.create({
-      ...createStoreDto,
+      name: createStoreDto.name,
+      price: createStoreDto.price,
       created_by: userPayload.id,
       bank_id: userPayload.bank_id,
       warehouse_id: userPayload.warehouse_id,
@@ -37,26 +43,38 @@ export class StoreService {
   }
 
   findAll(dto: FindStoreDto, userPayload: IJwtPayload) {
-    return this.storeRepository.findAll(dto, userPayload);
+    return this.storeRepository.findAll({
+      ...dto,
+      bank_id: userPayload.bank_id,
+      warehouse_id: userPayload.warehouse_id,
+    });
   }
 
-  findOne(id: number, manager?: EntityManager) {
+  findOne(id: number, userPayload?: IJwtPayload, manager?: EntityManager) {
     const repositories = manager ? manager.getRepository(StoreEntity) : this.storeRepository;
-    return repositories.findOneBy({ id });
+    return repositories.findOne({ 
+      where: { 
+        id, 
+        bank_id: userPayload?.bank_id, 
+        warehouse_id: userPayload?.warehouse_id,
+      },
+      relations: ['category.unit'], 
+    });
   }
 
-  findByIds(ids: number[]) {
-    return this.storeRepository.findBy({ id: In(ids) });
+  findByIds(ids: number[], manager?: EntityManager) {
+    const repositories = manager ? manager.getRepository(StoreEntity) : this.storeRepository;
+    return repositories.find({ where: { id: In(ids) }, relations: ['category.unit'] });
   }
 
   async update(id: number, updateStoreDto: UpdateStoreDto, userPayload: IJwtPayload) {
-    const store = await this.findOne(id);
+    const store = await this.findOne(id, userPayload);
     if (!store) throw new BadRequestException('Store not found');
 
     return this.storeRepository.update(id, {
       ...store,
       ...updateStoreDto,
-      updated_by: userPayload.id,
+      updated_by: userPayload?.id,
     });
   }
 

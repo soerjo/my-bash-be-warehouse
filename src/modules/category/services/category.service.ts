@@ -4,6 +4,7 @@ import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { FindCategoryDto } from '../dto/find-category.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CategoryRepository } from '../repositories/category.repository';
+import { In } from 'typeorm';
 
 @Injectable()
 export class CategoryService {
@@ -32,16 +33,30 @@ export class CategoryService {
   }
 
   findAll(dto: FindCategoryDto, userPayload: IJwtPayload) {
-    return this.categoryRepository.findAll(dto, userPayload);
+    return this.categoryRepository.findAll({
+      ...dto,
+      bank_id: userPayload.bank_id,
+      warehouse_id: userPayload.warehouse_id,
+    });
   }
 
-  findOne(id: number) {
-    return this.categoryRepository.findOneBy({id});
+  findOne(id: number, userPayload?: IJwtPayload) {
+    return this.categoryRepository.findOne({ 
+      where: { 
+        id,
+        bank_id: userPayload?.bank_id,
+        warehouse_id: userPayload?.warehouse_id,
+      } 
+    });
+  }
+
+  getBulkByIds(ids: number[]) {
+    return this.categoryRepository.find({ where: { id: In(ids) } });
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto, userPayload: IJwtPayload) {
-    const category = await this.findOne(id);
-    if(!category) throw new Error('Unit not found');
+    const category = await this.findOne(id, userPayload);
+    if(!category) throw new BadRequestException('Unit not found');
     return this.categoryRepository.update(id, {
       ...category,
       ...updateCategoryDto,
@@ -51,7 +66,7 @@ export class CategoryService {
 
   async remove(id: number, userPayload: IJwtPayload) {
     const unit = await this.findOne(id);
-    if(!unit) throw new Error('Unit not found');
+    if(!unit) throw new BadRequestException('Unit not found');
 
     unit.deleted_by = userPayload.id;
     return this.categoryRepository.softRemove(unit)

@@ -1,5 +1,4 @@
 import { DataSource, EntityManager, Repository } from "typeorm";
-import { IJwtPayload } from "../../../common/interface/jwt-payload.interface";
 import { Injectable } from "@nestjs/common";
 import { CategoryEntity } from "../entities/category.entity";
 import { FindCategoryDto } from "../dto/find-category.dto";
@@ -11,10 +10,10 @@ export class CategoryRepository extends Repository<CategoryEntity> {
     }
 
 
-        async findAll(dto: FindCategoryDto, userPayload: IJwtPayload, manager?: EntityManager) {
+        async findAll(dto: FindCategoryDto, manager?: EntityManager) {
             const repo = manager ? manager.getRepository(CategoryEntity) : this;
             const queryBuilder = repo.createQueryBuilder('category');
-            queryBuilder.leftJoin('category.unit_type', 'unit')
+            queryBuilder.leftJoin('category.unit', 'unit')
             queryBuilder.select([
               'category.id as id',
               'category.name as name',
@@ -23,23 +22,19 @@ export class CategoryRepository extends Repository<CategoryEntity> {
               'unit.id as unit_id',
               'unit.name as unit_name',
             ])
+
+            if(dto.name) {
+              queryBuilder.andWhere('category.name ILIKE :name', { name: `%${dto.name}%` })
+            }
+
+            if(dto.bank_id) {
+              queryBuilder.andWhere('category.bank_id = :bank_id OR category.bank_id is null', { bank_id: dto.bank_id })
+            }
         
-            // if(![RoleEnum.SUPER_ADMIN, RoleEnum.SYSTEM_ADMIN].includes(userPayload.role_id)) {
-            //   queryBuilder.andWhere('user.bank_id = :bank_id', { bank_id: userPayload.bank_id });
-            // }
-        
-            // if(dto.username) {
-            //   queryBuilder.andWhere('user.username ilike :username', { username: `%${dto.username}%` });
-            // }
-        
-            // if(dto.email) {
-            //   queryBuilder.andWhere('user.email ilike :email', { email: `%${dto.email}%` });
-            // }
-        
-            // if(dto.role_id) {
-            //   queryBuilder.andWhere('user.role_id = :role_id', { role_id: dto.role_id });
-            // }
-        
+            if(dto.warehouse_id) {
+              queryBuilder.andWhere('category.warehouse_id = :warehouse_id OR category.warehouse_id is null', { warehouse_id: dto.warehouse_id })
+            }
+
             queryBuilder.orderBy('category.created_at', 'DESC')
             queryBuilder.skip((dto.page - 1) * dto.take).take(dto.take)
           
@@ -55,18 +50,7 @@ export class CategoryRepository extends Repository<CategoryEntity> {
             };
         
             const processedData = rawData.map(data => ({
-              ...data, 
-            //   balance: data.balance ? parseFloat(data.balance) : 0,
-            //   full_name: data.full_name ? decrypt(data.full_name)  : null,
-            //   name: data.name ? decrypt(data.name) : null,
-            //   identity_number: data.identity_number ? decrypt(data.identity_number)  : null,
-            //   province: data.province ? decrypt(data.province) : null,
-            //   regency: data.regency ? decrypt(data.regency)  : null,
-            //   district: data.district ? decrypt(data.district) : null,
-            //   village: data.village ? decrypt(data.village)  : null,
-            //   address: data.address ? decrypt(data.address)  : null,
-            //   postal_code: data.postal_code ? decrypt(data.postal_code)  : null,
-            //   phone: data.phone ? decrypt(data.phone)  : null,
+              ...data,
             }))
             
             return { data: processedData, meta}

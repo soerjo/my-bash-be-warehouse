@@ -8,6 +8,7 @@ import { RolesGuard } from '../../../common/guard/role.guard';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CurrentUser } from '../../../common/decorator/jwt-payload.decorator';
 import { FindCategoryDto } from '../dto/find-category.dto';
+import { FindBulkDto } from '../dto/get-bulk-category.dto';
 
 @ApiTags('category')
 @ApiBearerAuth()
@@ -24,6 +25,11 @@ export class CategoryController {
   @Get()
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindCategoryDto) {
     return this.categoryService.findAll(dto, userPayload);
+  }
+
+  @Get('bulk')
+  getBulks(@Query() dto: FindBulkDto) {
+    return this.categoryService.getBulkByIds(dto.ids);
   }
 
   @Get(':id')

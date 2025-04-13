@@ -1,6 +1,8 @@
 import { PaginationDto } from "../../../common/dto/pagination.dto";
 
 export class FindStoreDto extends PaginationDto {   
+    bank_id?: number;
+    warehouse_id?: number;
     // page: number;
     // take: number;
     // name: string;

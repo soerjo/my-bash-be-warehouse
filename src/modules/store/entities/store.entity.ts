@@ -6,36 +6,39 @@ import Decimal from "decimal.js";
 
 @Entity({ name: 'store', schema: 'warehouse' })
 export class StoreEntity extends MainEntityAbstract {
-    @Column({
-        default: 0, 
-        type: 'decimal',
-        precision: 18,
-        scale: 4,
-        transformer: {
-          to: (value: Decimal | string | number): string => {
-            return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
-          },
-          from: (value: string): Decimal => {
-            return new Decimal(value ?? 0);
-          },
+  @Column({nullable: true})
+  name: string;
+
+  @Column({
+      default: 0, 
+      type: 'decimal',
+      precision: 18,
+      scale: 4,
+      transformer: {
+        to: (value: Decimal | string | number): string => {
+          return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
         },
-    })
-    price: Decimal;
+        from: (value: string): Decimal => {
+          return new Decimal(value ?? 0);
+        },
+      },
+  })
+  price: Decimal;
 
-    @Column({nullable: true})
-    bank_id: number;
+  @Column({nullable: true})
+  bank_id: number;
 
-    @Column({nullable: true})
-    warehouse_id: number;
+  @Column({nullable: true})
+  warehouse_id: number;
 
-    @Column()
-    category_id?: number;
+  @Column()
+  category_id?: number;
 
-    @ManyToOne(() => CategoryEntity)
-    @JoinColumn({ name: 'category_id', referencedColumnName: 'id'  })
-    category_type: CategoryEntity;
+  @ManyToOne(() => CategoryEntity)
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id'  })
+  category: CategoryEntity;
 
-    @ManyToOne(() => WarehouseEntity)
-    @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id'  })
-    warehouse: WarehouseEntity;
+  @ManyToOne(() => WarehouseEntity)
+  @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id'  })
+  warehouse: WarehouseEntity;
 }

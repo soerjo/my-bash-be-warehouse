@@ -8,6 +8,7 @@ import { RolesGuard } from '../../../common/guard/role.guard';
 import { FindWarehouseDto } from '../dto/finc-warehouse.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CurrentUser } from '../../../common/decorator/jwt-payload.decorator';
+import { FindBulkDto } from '../dto/find-bulk.dto';
 
 @ApiTags('warehouse')
 @ApiBearerAuth()
@@ -29,6 +30,11 @@ export class WarehouseController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.warehouseService.findOne(+id);
+  }
+
+  @Get('bulk')
+  getBulk(@Query() dto: FindBulkDto) {
+    return this.warehouseService.getBulk(dto.ids);
   }
 
   @Patch(':id')

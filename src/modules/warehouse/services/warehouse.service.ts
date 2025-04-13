@@ -4,6 +4,7 @@ import { UpdateWarehouseDto } from '../dto/update-warehouse.dto';
 import { WarehouseRepository } from '../repositories/warehouse.repository';
 import { FindWarehouseDto } from '../dto/finc-warehouse.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
+import { In } from 'typeorm';
 
 @Injectable()
 export class WarehouseService {
@@ -20,18 +21,22 @@ export class WarehouseService {
 
     const newWarehouse = this.warehouseRepository.create({
       ...dto,
-      code: dto.code || dto.name.toUpperCase(),
+      code: dto.code || dto.name.split(' ').join('_').toUpperCase(),
       created_by: userPayload.id,
     });
     return this.warehouseRepository.save(newWarehouse);
   }
 
   findAll(dto: FindWarehouseDto, userPayload: IJwtPayload) {
-    return this.warehouseRepository.findAll(dto, userPayload)
+    return this.warehouseRepository.findAll(dto, userPayload);
   }
 
   findOne(id: number) {
     return this.warehouseRepository.findOneBy({ id });
+  }
+
+  getBulk(ids: number[]) {
+    return this.warehouseRepository.findBy({ id: In(ids) });
   }
 
   async update(id: number, updateWarehouseDto: UpdateWarehouseDto, userPayload: IJwtPayload) {

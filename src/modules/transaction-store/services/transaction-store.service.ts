@@ -23,7 +23,7 @@ export class TransactionStoreService {
     return this.dataSource.transaction(async (manager) => {
       let listNewTransactionStore: TransactionStoreEntity[] = [];
       for (const transaction of transactionList) {
-        const store = await this.storeService.findOne(transaction.store_id, manager);
+        const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
         if (!store) throw new BadRequestException('Category not found');
 
         const newTransactionStore = this.transactionStoreRepository.create({
@@ -53,7 +53,7 @@ export class TransactionStoreService {
     return this.dataSource.transaction(async (manager) => {
       let listNewTransactionStore: TransactionStoreEntity[] = [];
       for (const transaction of transactionList) {
-        const store = await this.storeService.findOne(transaction.store_id, manager);
+        const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
         if (!store) throw new BadRequestException('Category not found');
 
         const newTransactionStore = this.transactionStoreRepository.create({
