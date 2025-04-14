@@ -56,7 +56,7 @@ export class CategoryService {
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto, userPayload: IJwtPayload) {
     const category = await this.findOne(id, userPayload);
-    if(!category) throw new BadRequestException('Unit not found');
+    if(!category) throw new BadRequestException('category not found');
     return this.categoryRepository.update(id, {
       ...category,
       ...updateCategoryDto,

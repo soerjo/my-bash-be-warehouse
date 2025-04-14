@@ -33,8 +33,8 @@ export class StoreController {
 
   @Get('bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  getBulk(@Query() dto: FindBulkDto) {
-    return this.storeService.findByIds(dto.ids);
+  getBulk(@Query() dto: FindBulkDto, @CurrentUser() userPayload: IJwtPayload) {
+    return this.storeService.findByIds(dto.ids, userPayload);
   }
   
   @Get(':id')

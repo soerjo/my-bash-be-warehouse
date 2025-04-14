@@ -18,6 +18,7 @@ export class StoreRepository extends Repository<StoreEntity> {
             queryBuilder.leftJoin('category.unit', 'unit');
             queryBuilder.select([
               'store.id as id',
+              'store.name as name',
               'category.id as category_id',
               'category.name as category_name',
               'category.code as category_code',

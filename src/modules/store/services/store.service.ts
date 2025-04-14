@@ -58,20 +58,34 @@ export class StoreService {
         bank_id: userPayload?.bank_id, 
         warehouse_id: userPayload?.warehouse_id,
       },
-      relations: ['category.unit'], 
+      ...(!userPayload ? {relations: ['category.unit']} : {})
+      // relations: ['category.unit'], 
+      
     });
   }
 
-  findByIds(ids: number[], manager?: EntityManager) {
+  findByIds(ids: number[], userPayload?: IJwtPayload, manager?: EntityManager) {
     const repositories = manager ? manager.getRepository(StoreEntity) : this.storeRepository;
-    return repositories.find({ where: { id: In(ids) }, relations: ['category.unit'] });
+    return repositories.find({ 
+      where: { 
+          id: In(ids),
+          bank_id: userPayload?.bank_id,
+          warehouse_id: userPayload?.warehouse_id,
+        }, 
+      relations: ['category.unit'] 
+    });
   }
 
   async update(id: number, updateStoreDto: UpdateStoreDto, userPayload: IJwtPayload) {
     const store = await this.findOne(id, userPayload);
     if (!store) throw new BadRequestException('Store not found');
 
-    return this.storeRepository.update(id, {
+    console.log({updateStoreDto, store})
+    console.log({      ...store,
+      ...updateStoreDto,
+      updated_by: userPayload?.id,})
+
+    await this.storeRepository.update(id, {
       ...store,
       ...updateStoreDto,
       updated_by: userPayload?.id,

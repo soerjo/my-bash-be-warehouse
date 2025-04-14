@@ -28,11 +28,11 @@ export class CategoryRepository extends Repository<CategoryEntity> {
             }
 
             if(dto.bank_id) {
-              queryBuilder.andWhere('category.bank_id = :bank_id OR category.bank_id is null', { bank_id: dto.bank_id })
+              queryBuilder.andWhere('category.bank_id = :bank_id', { bank_id: dto.bank_id })
             }
         
             if(dto.warehouse_id) {
-              queryBuilder.andWhere('category.warehouse_id = :warehouse_id OR category.warehouse_id is null', { warehouse_id: dto.warehouse_id })
+              queryBuilder.andWhere('category.warehouse_id = :warehouse_id', { warehouse_id: dto.warehouse_id })
             }
 
             queryBuilder.orderBy('category.created_at', 'DESC')
