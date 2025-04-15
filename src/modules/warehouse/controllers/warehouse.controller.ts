@@ -22,6 +22,11 @@ export class WarehouseController {
     return this.warehouseService.create(createWarehouseDto, userPayload);
   }
 
+  @Delete('failed/:trx_id')
+  faildCreat(@Param('trx_id') trx_id: string) {
+    return this.warehouseService.failedCreate(trx_id);
+  }
+
   @Get()
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindWarehouseDto) {
     return this.warehouseService.findAll(dto, userPayload);

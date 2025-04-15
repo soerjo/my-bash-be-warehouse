@@ -16,4 +16,9 @@ export class CreateWarehouseDto {
     @ApiProperty()
     @IsNumber()
     bank_id: number;
+
+    @ApiPropertyOptional()
+    @IsString()
+    trx_id?: string;
+
 }

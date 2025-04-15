@@ -11,4 +11,7 @@ export class WarehouseEntity extends MainEntityAbstract {
 
   @Column({nullable: true})
   bank_id: number;
+
+  @Column({nullable: true})
+  trx_id: string;
 }

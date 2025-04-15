@@ -27,6 +27,13 @@ export class WarehouseService {
     return this.warehouseRepository.save(newWarehouse);
   }
 
+  async failedCreate(trx_id: string) {
+    const warehouse = await this.warehouseRepository.findOne({ where: { trx_id } });
+    if(!warehouse) throw new BadRequestException('Warehouse trx not found');
+
+    return this.warehouseRepository.remove(warehouse);
+  }
+
   findAll(dto: FindWarehouseDto, userPayload: IJwtPayload) {
     return this.warehouseRepository.findAll(dto, userPayload);
   }

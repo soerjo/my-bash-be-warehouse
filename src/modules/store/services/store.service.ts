@@ -80,11 +80,6 @@ export class StoreService {
     const store = await this.findOne(id, userPayload);
     if (!store) throw new BadRequestException('Store not found');
 
-    console.log({updateStoreDto, store})
-    console.log({      ...store,
-      ...updateStoreDto,
-      updated_by: userPayload?.id,})
-
     await this.storeRepository.update(id, {
       ...store,
       ...updateStoreDto,

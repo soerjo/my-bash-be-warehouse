@@ -6,7 +6,6 @@ export class CreateStoreDto {
     @ApiProperty()
     @IsString()
     @Transform(({ value }) => value.trim().toLowerCase())
-    @Length(1, 80)
     name: string;
     
     @ApiProperty()
