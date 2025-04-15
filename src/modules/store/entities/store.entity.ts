@@ -3,6 +3,7 @@ import { MainEntityAbstract } from "../../../common/abstract/main-entity.abstrac
 import { CategoryEntity } from "../../../modules/category/entities/category.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import Decimal from "decimal.js";
+import { FeeEntity } from "../../../modules/fee/entities/fee.entity";
 
 @Entity({ name: 'store', schema: 'warehouse' })
 export class StoreEntity extends MainEntityAbstract {
@@ -26,12 +27,15 @@ export class StoreEntity extends MainEntityAbstract {
   price: Decimal;
 
   @Column({nullable: true})
+  fee_id?: number;
+
+  @Column({nullable: true})
   bank_id: number;
 
   @Column({nullable: true})
   warehouse_id: number;
 
-  @Column()
+  @Column({nullable: true})
   category_id?: number;
 
   @ManyToOne(() => CategoryEntity)
@@ -41,4 +45,9 @@ export class StoreEntity extends MainEntityAbstract {
   @ManyToOne(() => WarehouseEntity)
   @JoinColumn({ name: 'warehouse_id', referencedColumnName: 'id'  })
   warehouse: WarehouseEntity;
+
+  @ManyToOne(() => FeeEntity, {onDelete: 'SET NULL'})
+  @JoinColumn({ name: 'fee_id', referencedColumnName: 'id'  })
+  fee: FeeEntity;
+
 }

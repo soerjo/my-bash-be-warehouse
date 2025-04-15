@@ -49,9 +49,9 @@ export class UnitsController {
     return this.unitsService.update(+id, updateUnitDto, userPayload);
   }
 
-  @Delete(':id')
-  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
-    return this.unitsService.remove(+id, userPayload);
-  }
+  // @Delete(':id')
+  // @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  // remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
+  //   return this.unitsService.remove(+id, userPayload);
+  // }
 }

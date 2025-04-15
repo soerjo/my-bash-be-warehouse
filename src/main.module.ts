@@ -15,6 +15,7 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { StoreModule } from './modules/store/store.module';
 import { TransactionWarehouseModule } from './modules/transaction-warehouse/transaction-warehouse.module';
 import { TransactionStoreModule } from './modules/transaction-store/transaction-store.module';
+import { FeeModule } from './modules/fee/fee.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { TransactionStoreModule } from './modules/transaction-store/transaction-
     StoreModule,
     TransactionWarehouseModule,
     TransactionStoreModule,
+    FeeModule,
     // other module...
   ],
   providers: [

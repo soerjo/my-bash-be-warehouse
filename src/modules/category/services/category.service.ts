@@ -5,10 +5,14 @@ import { FindCategoryDto } from '../dto/find-category.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CategoryRepository } from '../repositories/category.repository';
 import { In } from 'typeorm';
+import { UnitsService } from '../../../modules/units/services/units.service';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly categoryRepository: CategoryRepository) {}
+  constructor(
+    private readonly categoryRepository: CategoryRepository,
+    private readonly unitService: UnitsService,
+  ) {}
 
   async create(dto: CreateCategoryDto, userPayload: IJwtPayload) {
     const category = await this.categoryRepository.findOne({
@@ -20,6 +24,9 @@ export class CategoryService {
       }
     })
     if(category) throw new BadRequestException('Category already exists');
+
+    const unit = await this.unitService.findOne(dto.unit_id, userPayload);
+    if(!unit) throw new BadRequestException('Unit not found');
 
     const newCategory = this.categoryRepository.create({
       ...dto,

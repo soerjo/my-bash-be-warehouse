@@ -20,13 +20,13 @@ export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
   @Post()
-  @Roles([ RoleEnum.SYSTEM_ADMIN ])
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   create(@CurrentUser() userPayload: IJwtPayload, @Body() createStoreDto: CreateStoreDto) {
     return this.storeService.create(createStoreDto, userPayload);
   }
 
   @Get()
-  @Roles([ RoleEnum.SYSTEM_ADMIN ])
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindStoreDto) {
     return this.storeService.findAll(dto, userPayload);
   }
@@ -44,13 +44,13 @@ export class StoreController {
   }
 
   @Patch(':id')
-  @Roles([ RoleEnum.SYSTEM_ADMIN ])
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   update(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
     return this.storeService.update(+id, updateStoreDto, userPayload);
   }
 
   @Delete(':id')
-  @Roles([ RoleEnum.SYSTEM_ADMIN ])
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
     return this.storeService.remove(+id, userPayload);
   }

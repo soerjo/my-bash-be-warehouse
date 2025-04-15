@@ -7,15 +7,21 @@ import { StoreRepository } from '../repositories/store.repository';
 import { CategoryService } from '../../../modules/category/services/category.service';
 import { EntityManager, In } from 'typeorm';
 import { StoreEntity } from '../entities/store.entity';
+import { Transactional } from 'typeorm-transactional';
+import { FeeService } from '../../../modules/fee/services/fee.service';
+import Decimal from 'decimal.js';
+import { FeeEntity } from '../../../modules/fee/entities/fee.entity';
 
 @Injectable()
 export class StoreService {
   constructor(
     private readonly storeRepository: StoreRepository,
     private readonly categoryService: CategoryService,
+    private readonly feeService: FeeService,
   
   ) {}
 
+  @Transactional()
   async create(createStoreDto: CreateStoreDto, userPayload: IJwtPayload) {
     const store = await this.storeRepository.findOne({
       where: {
@@ -30,6 +36,16 @@ export class StoreService {
     const category = await this.categoryService.findOne(createStoreDto.category_id);
     if(!category) throw new BadRequestException('Category not found');
 
+    let fee: FeeEntity;
+    if(createStoreDto.is_custom_fee) {
+      fee = await this.feeService.create({
+        percentage: new Decimal(createStoreDto.custom_fee),
+        bank_id: userPayload.bank_id,
+        warehouse_id: userPayload.warehouse_id,
+        store_id: store.id,
+      })
+    }
+
     const newStore = this.storeRepository.create({
       name: createStoreDto.name,
       price: createStoreDto.price,
@@ -37,6 +53,7 @@ export class StoreService {
       bank_id: userPayload.bank_id,
       warehouse_id: userPayload.warehouse_id,
       category_id: createStoreDto.category_id,
+      fee_id: fee?.id,
     });
 
     return this.storeRepository.save(newStore);
@@ -76,9 +93,37 @@ export class StoreService {
     });
   }
 
+  @Transactional()
   async update(id: number, updateStoreDto: UpdateStoreDto, userPayload: IJwtPayload) {
     const store = await this.findOne(id, userPayload);
     if (!store) throw new BadRequestException('Store not found');
+
+    let fee: FeeEntity;
+    if(store.fee_id && updateStoreDto.is_custom_fee) {
+      fee = await this.feeService.update({
+        id: store.fee_id,
+        percentage: updateStoreDto.custom_fee
+      }, userPayload )
+    }
+
+    if(!store.fee_id && updateStoreDto.is_custom_fee) {
+      fee = await this.feeService.create({
+        percentage: new Decimal(updateStoreDto.custom_fee),
+        bank_id: userPayload.bank_id,
+        warehouse_id: userPayload.warehouse_id,
+        store_id: store.id,
+      })
+      store.fee_id = fee.id;
+    }
+
+    if(updateStoreDto.is_default_fee) {
+      await this.feeService.hardDelete(store.fee_id)
+      store.fee_id = null;
+    }
+
+    delete updateStoreDto.is_custom_fee
+    delete updateStoreDto.is_default_fee
+    delete updateStoreDto.custom_fee
 
     await this.storeRepository.update(id, {
       ...store,

@@ -4,27 +4,42 @@ import { UpdateWarehouseDto } from '../dto/update-warehouse.dto';
 import { WarehouseRepository } from '../repositories/warehouse.repository';
 import { FindWarehouseDto } from '../dto/finc-warehouse.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
-import { In } from 'typeorm';
+import { In, Transaction } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
+import { FeeService } from '../../../modules/fee/services/fee.service';
+import Decimal from 'decimal.js';
 
 @Injectable()
 export class WarehouseService {
-  constructor(private readonly warehouseRepository: WarehouseRepository) {}
+  constructor(
+    private readonly warehouseRepository: WarehouseRepository,
+    private readonly feeService: FeeService,
+  ) {}
 
+  @Transactional()
   async create(dto: CreateWarehouseDto, userPayload: IJwtPayload) {
-    const warehouse = await this.warehouseRepository.findOne({
+    const existWarehouse = await this.warehouseRepository.findOne({
       where: [
         { name: dto.name },
         ...(dto.code? [{ code: dto.code.split(' ').join('_') }] : [])
       ],
     });
-    if(warehouse) throw new BadRequestException('Warehouse already exists');
+    if(existWarehouse) throw new BadRequestException('Warehouse already exists');
 
     const newWarehouse = this.warehouseRepository.create({
       ...dto,
       code: dto.code || dto.name.split(' ').join('_').toUpperCase(),
       created_by: userPayload.id,
     });
-    return this.warehouseRepository.save(newWarehouse);
+    const warehouse = await this.warehouseRepository.save(newWarehouse);
+
+    await this.feeService.create({
+      warehouse_id: warehouse.id,
+      bank_id: userPayload.bank_id,
+      percentage: new Decimal(0),
+    })
+
+    return warehouse;
   }
 
   async failedCreate(trx_id: string) {

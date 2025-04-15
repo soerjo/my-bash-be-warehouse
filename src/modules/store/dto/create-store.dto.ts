@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsInt, IsNumber, IsString, Length } from "class-validator";
+import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Length } from "class-validator";
 
 export class CreateStoreDto {
     @ApiProperty()
@@ -15,4 +15,20 @@ export class CreateStoreDto {
     @ApiProperty()
     @IsInt()
     category_id: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsBoolean()
+    is_custom_fee?: boolean;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsBoolean()
+    is_default_fee?: boolean;
+
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsNumber()
+    custom_fee?: number;
 }

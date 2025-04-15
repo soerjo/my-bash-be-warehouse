@@ -42,8 +42,8 @@ export class CategoryController {
     return this.categoryService.update(+id, updateCategoryDto, userPayload);
   }
 
-  @Delete(':id')
-  remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
-    return this.categoryService.remove(+id, userPayload);
-  }
+  // @Delete(':id')
+  // remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
+  //   return this.categoryService.remove(+id, userPayload);
+  // }
 }
