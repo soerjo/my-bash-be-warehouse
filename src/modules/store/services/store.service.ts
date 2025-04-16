@@ -67,6 +67,15 @@ export class StoreService {
     });
   }
 
+  async findOneByStoreId(store_id: number, userPayload: IJwtPayload) {
+    const store = await this.storeRepository.findByStoreId([store_id], userPayload)
+    return store[0];
+  }
+
+  findOneByStoreIds(store_ids: number[], userPayload: IJwtPayload) {
+    return this.storeRepository.findByStoreId(store_ids, userPayload);
+  }
+
   findOne(id: number, userPayload?: IJwtPayload, manager?: EntityManager) {
     const repositories = manager ? manager.getRepository(StoreEntity) : this.storeRepository;
     return repositories.findOne({ 

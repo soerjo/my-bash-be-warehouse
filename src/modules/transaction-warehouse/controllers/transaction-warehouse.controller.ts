@@ -8,6 +8,8 @@ import { RolesGuard } from '../../../common/guard/role.guard';
 import { CurrentUser } from '../../../common/decorator/jwt-payload.decorator';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { FindTransactionStoreDto } from '../../../modules/transaction-store/dto/find-transaction-store.dto';
+import { Roles } from '../../../common/decorator/role.decorator';
+import { RoleEnum } from '../../../common/constant/role.constant';
 
 @ApiTags('transaction-warehouse')
 @ApiBearerAuth()
@@ -22,13 +24,16 @@ export class TransactionWarehouseController {
   // }
 
   @Get()
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindTransactionStoreDto) {
     return this.transactionWarehouseService.findAll(dto, userPayload);
   }
 
   @Get(':id')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findOne(@Param('id') id: string) {
-    return this.transactionWarehouseService.findOne(+id);
+    return this.transactionWarehouseService.findOne(id);
   }
 
   // @Patch(':id')

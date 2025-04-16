@@ -9,6 +9,8 @@ import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CurrentUser } from '../../../common/decorator/jwt-payload.decorator';
 import { FindCategoryDto } from '../dto/find-category.dto';
 import { FindBulkDto } from '../dto/get-bulk-category.dto';
+import { Roles } from '../../../common/decorator/role.decorator';
+import { RoleEnum } from '../../../common/constant/role.constant';
 
 @ApiTags('category')
 @ApiBearerAuth()
@@ -18,32 +20,32 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  create(@CurrentUser() userPayload: IJwtPayload, @Body() createCategoryDto: CreateCategoryDto) {
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+    create(@CurrentUser() userPayload: IJwtPayload, @Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto, userPayload);
   }
 
   @Get()
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindCategoryDto) {
     return this.categoryService.findAll(dto, userPayload);
   }
 
   @Get('bulk')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   getBulks(@Query() dto: FindBulkDto) {
     return this.categoryService.getBulkByIds(dto.ids);
   }
 
   @Get(':id')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(+id);
   }
 
   @Patch(':id')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   update(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(+id, updateCategoryDto, userPayload);
   }
-
-  // @Delete(':id')
-  // remove(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string) {
-  //   return this.categoryService.remove(+id, userPayload);
-  // }
 }

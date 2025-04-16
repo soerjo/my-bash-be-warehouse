@@ -1,0 +1,120 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class  Migration1744805694688 implements MigrationInterface {
+    name = ' Migration1744805694688'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "deleted_by"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "deleted_at"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "deleted_by"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "deleted_at"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "transaction_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "price_per_unit"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "store_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "store_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "store_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "total_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "fee_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "final_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "category_store_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "category_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "category_code" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "unit_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "unit_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "unit_code" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "transaction_type_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "bank_id" integer`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "trx_id" character varying`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "transaction_bank_id" character varying`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "store_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "store_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "fee_percent" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "fee_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "final_price" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "category_store_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "category_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "category_code" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "unit_id" integer NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "unit_name" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "unit_code" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP CONSTRAINT "PK_f91c65f9a3f2642b2f1003a016e"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD CONSTRAINT "PK_f91c65f9a3f2642b2f1003a016e" PRIMARY KEY ("id")`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "created_by" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "created_by" SET DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "updated_by" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "updated_by" SET DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "last_transaction_id" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP CONSTRAINT "FK_357632082408c0d4dfcc24c8e67"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP CONSTRAINT "PK_11c8f4a59ec5388339706bb9336"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "id" uuid NOT NULL DEFAULT uuid_generate_v4()`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD CONSTRAINT "PK_11c8f4a59ec5388339706bb9336" PRIMARY KEY ("id")`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "created_by" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "created_by" SET DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "updated_by" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "updated_by" SET DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "store_id" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD CONSTRAINT "FK_488e7b8d0f613de2c6bb198d45a" FOREIGN KEY ("transaction_type_id") REFERENCES "warehouse"."transaction_type"("transaction_type_id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD CONSTRAINT "FK_357632082408c0d4dfcc24c8e67" FOREIGN KEY ("store_id") REFERENCES "warehouse"."store"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP CONSTRAINT "FK_357632082408c0d4dfcc24c8e67"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP CONSTRAINT "FK_488e7b8d0f613de2c6bb198d45a"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "store_id" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "updated_by" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "updated_by" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "created_by" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ALTER COLUMN "created_by" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP CONSTRAINT "PK_11c8f4a59ec5388339706bb9336"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "id" SERIAL NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD CONSTRAINT "PK_11c8f4a59ec5388339706bb9336" PRIMARY KEY ("id")`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD CONSTRAINT "FK_357632082408c0d4dfcc24c8e67" FOREIGN KEY ("store_id") REFERENCES "warehouse"."store"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "last_transaction_id" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "updated_by" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "updated_by" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "created_by" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ALTER COLUMN "created_by" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP CONSTRAINT "PK_f91c65f9a3f2642b2f1003a016e"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "id" SERIAL NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD CONSTRAINT "PK_f91c65f9a3f2642b2f1003a016e" PRIMARY KEY ("id")`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "unit_code"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "unit_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "unit_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "category_code"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "category_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "category_store_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "final_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "fee_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "fee_percent"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "store_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "store_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "transaction_bank_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" DROP COLUMN "trx_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "bank_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "transaction_type_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "unit_code"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "unit_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "unit_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "category_code"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "category_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "category_store_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "final_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "fee_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "total_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "store_price"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "store_name"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" DROP COLUMN "store_id"`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "price_per_unit" numeric(18,4) NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "transaction_id" character varying NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "deleted_at" TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-store" ADD "deleted_by" integer`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "deleted_at" TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "warehouse"."transaction-warehouse" ADD "deleted_by" integer`);
+    }
+
+}
