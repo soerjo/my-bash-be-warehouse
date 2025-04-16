@@ -46,7 +46,7 @@ export class StoreRepository extends Repository<StoreEntity> {
       `,
     ])
 
-    queryBuilder.where('store.id = In(:...store_id)', { store_ids: store_ids });
+    queryBuilder.where('store.id In(:...store_ids)', { store_ids: store_ids });
 
     if(userPayload?.bank_id) {
       queryBuilder.andWhere('store.bank_id = :bank_id', { bank_id: userPayload.bank_id });
@@ -132,9 +132,9 @@ export class StoreRepository extends Repository<StoreEntity> {
 
         return {
           ...data,
-          price: new Decimal(final_price).toNumber(), 
-          store_price: new Decimal(data.price).toNumber(),
-          fee: new Decimal(data.fee).toNumber(),
+          // price: new Decimal(final_price).toNumber(), 
+          // store_price: new Decimal(data.price).toNumber(),
+          // fee: new Decimal(data.fee).toNumber(),
         }
       })
       

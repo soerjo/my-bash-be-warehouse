@@ -1,10 +1,60 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import { TransactionTypeEnum } from "src/common/constant/transaction-type.constant";
+import { IsRangeDate } from "../../../common/validation/isRangeDate.validation";
 
 export class FindTransactionStoreDto extends PaginationDto {
-//   transaction_id?: string;
-//   transaction_type?: string;
-//   transaction_date?: Date;
-//   transaction_amount?: number;
-//   transaction_description?: string;
-//   transaction_status?: string;
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    transaction_bank_id?: string;
+
+    @IsOptional()
+    @IsEnum(TransactionTypeEnum, { each: true })
+    @Transform(({ value }) =>
+        Array.isArray(value)
+          ? value.map((v) => Number(v))
+          : [Number(value)],
+      )
+    @ApiPropertyOptional({ type: [Number] })
+    store_ids?: number[];
+
+    @IsOptional()
+    @IsEnum(TransactionTypeEnum, { each: true })
+    @Transform(({ value }) =>
+        Array.isArray(value)
+          ? value.map((v) => Number(v))
+          : [Number(value)],
+      )
+    @ApiPropertyOptional({ type: [Number] })
+    category_store_ids?: number[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @Type(() => Date)
+    @IsDate()
+    start_date?: Date;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @Type(() => Date)
+    @IsDate()
+    // @IsGreaderDate('start_date')
+    @IsRangeDate('start_date', 7)
+    end_date?: Date;
+
+    @IsOptional()
+    @IsEnum(TransactionTypeEnum, { each: true })
+    @Transform(({ value }) =>
+        Array.isArray(value)
+          ? value.map((v) => Number(v))
+          : [Number(value)],
+      )
+    @ApiPropertyOptional({ type: [Number] })
+    transaction_type_ids?: TransactionTypeEnum[];
+
+    bank_id?: number;
+    warehouse_id?: number;
 }
