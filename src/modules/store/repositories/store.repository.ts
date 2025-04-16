@@ -2,11 +2,11 @@ import { DataSource, EntityManager, Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
 import { StoreEntity } from "../entities/store.entity";
 import { FindStoreDto } from "../dto/find-store.dto";
-import { FeeEntity } from "src/modules/fee/entities/fee.entity";
+import { FeeEntity } from "../../../modules/fee/entities/fee.entity";
 import Decimal from "decimal.js";
-import { IJwtPayload } from "src/common/interface/jwt-payload.interface";
+import { IJwtPayload } from "../../../common/interface/jwt-payload.interface";
 import { ResponseFindStoreByIdDto } from "../dto/respose-find-store-by-id.dto";
-import { MetaPaginationDto } from "src/common/dto/meta-paginatio.dto";
+import { MetaPaginationDto } from "../../../common/dto/meta-paginatio.dto";
 
 @Injectable()
 export class StoreRepository extends Repository<StoreEntity> {

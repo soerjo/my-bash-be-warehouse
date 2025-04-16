@@ -3,7 +3,7 @@ import { FeeEntity } from "../entities/fee.entity";
 import { FindFeeDto } from "../dto/find-fee.dto";
 import { Injectable } from "@nestjs/common";
 import Decimal from "decimal.js";
-import { StoreEntity } from "src/modules/store/entities/store.entity";
+import { StoreEntity } from "../../../modules/store/entities/store.entity";
 
 @Injectable()
 export class FeeRepository  extends Repository<FeeEntity> {
