@@ -44,6 +44,9 @@ export class StoreRepository extends Repository<StoreEntity> {
         ELSE default_fee.percentage
       END as fee
       `,
+      'store.bank_id as bank_id',
+      'store.warehouse_id as warehouse_id',
+
     ])
 
     queryBuilder.where('store.id In(:...store_ids)', { store_ids: store_ids });
@@ -56,7 +59,26 @@ export class StoreRepository extends Repository<StoreEntity> {
       queryBuilder.andWhere('store.warehouse_id = :warehouse_id', { warehouse_id: userPayload.warehouse_id });
     }
 
-    return queryBuilder.getRawMany();
+    queryBuilder.orderBy('store.created_at', 'DESC')
+  
+    const queryItemCount = queryBuilder.getCount()
+    const queryUser = queryBuilder.getRawMany()
+    const [itemCount, rawData] = await Promise.all([queryItemCount, queryUser])
+
+    const processedData = rawData.map(data => {
+
+    const fee_price = new Decimal(data.fee).mul(data.price).div(100);
+    const final_price = new Decimal(data.price).minus(fee_price);
+
+      return {
+        ...data,
+        price: new Decimal(final_price).toNumber(), 
+        store_price: new Decimal(data.price).toNumber(),
+        fee: new Decimal(data?.fee ?? 0).toNumber(),
+      }
+    })
+
+    return processedData;
   }
 
 
@@ -132,9 +154,9 @@ export class StoreRepository extends Repository<StoreEntity> {
 
         return {
           ...data,
-          // price: new Decimal(final_price).toNumber(), 
-          // store_price: new Decimal(data.price).toNumber(),
-          // fee: new Decimal(data.fee).toNumber(),
+          price: new Decimal(final_price).toNumber(), 
+          store_price: new Decimal(data.price).toNumber(),
+          fee: new Decimal(data?.fee ?? 0).toNumber(),
         }
       })
       

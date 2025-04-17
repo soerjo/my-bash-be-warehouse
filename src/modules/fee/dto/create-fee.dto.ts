@@ -13,4 +13,6 @@ export class CreateFeeDto {
     @ApiPropertyOptional()
     @IsNumber()
     warehouse_id?: number;
+
+    store_id?: number;
 }

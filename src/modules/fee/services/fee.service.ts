@@ -78,7 +78,7 @@ export class FeeService {
       where: {
         // bank_id: userPayload.bank_id,
         warehouse_id: userPayload.warehouse_id ?? updateFeeDto.warehouse_id,
-        store_id: updateFeeDto.id ?? IsNull(),
+        store_id: updateFeeDto.store_id ?? IsNull(),
       }
     })
     if(!fee) throw new BadRequestException('Fee not found');

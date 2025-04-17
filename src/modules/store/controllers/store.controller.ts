@@ -11,6 +11,7 @@ import { FindStoreDto } from '../dto/find-store.dto';
 import { FindBulkDto } from '../dto/find-bulk.dto';
 import { Roles } from '../../../common/decorator/role.decorator';
 import { RoleEnum } from '../../../common/constant/role.constant';
+import { FindLogsStoreDto } from '../dto/find-log-store.dto';
 
 @ApiTags('store')
 @ApiBearerAuth()
@@ -41,6 +42,12 @@ export class StoreController {
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findOne(@Param('id') id: string) {
     return this.storeService.findOne(+id);
+  }
+
+  @Get('logs/:id')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  getLogs(@Param('id') id: string, @Query() dto: FindLogsStoreDto, @CurrentUser() userPayload: IJwtPayload) {
+    return this.storeService.getLogs(+id, dto, userPayload);
   }
 
   @Patch(':id')
