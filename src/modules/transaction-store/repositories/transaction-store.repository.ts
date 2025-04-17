@@ -49,6 +49,7 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
               "warehouse.id as warehouse_id",
               "warehouse.name as warehouse_name",
             ])
+            console.log({dto})
 
             if(dto.transaction_bank_ids) {
               queryBuilder.andWhere('transaction_store.transaction_bank_id In(:...transaction_bank_ids)', { transaction_bank_ids: dto.transaction_bank_ids });
@@ -62,11 +63,15 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
               queryBuilder.andWhere('transaction_store.transaction_bank_id = :transaction_bank_id', { transaction_bank_id: dto.transaction_bank_id });
             }
 
-            if (dto?.transaction_type_ids) {
+            if (dto?.transaction_type_ids?.length) {
               queryBuilder.andWhere('transaction_store.transaction_type_id In(:...transaction_type_ids)', { transaction_type_ids: dto.transaction_type_ids });
             }
 
-            if (dto?.category_store_ids) {
+            if (dto?.transaction_status_ids.length) {
+              queryBuilder.andWhere('transaction_store.transaction_status_id In(:...transaction_status_ids)', { transaction_status_ids: dto.transaction_status_ids });
+            }
+
+            if (dto?.category_store_ids?.length) {
               queryBuilder.andWhere('transaction_store.category_store_id In(:...category_store_ids)', { category_store_ids: dto.category_store_ids });
             }
 

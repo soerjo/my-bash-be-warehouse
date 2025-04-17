@@ -4,6 +4,7 @@ import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from "class-validator"
 import { Transform, Type } from "class-transformer";
 import { TransactionTypeEnum } from "../../../common/constant/transaction-type.constant";
 import { IsRangeDate } from "../../../common/validation/isRangeDate.validation";
+import { TransactionStatusEnum } from "src/common/constant/transaction-status.constant";
 
 export class FindTransactionStoreDto extends PaginationDto {
     @ApiPropertyOptional()
@@ -54,6 +55,16 @@ export class FindTransactionStoreDto extends PaginationDto {
       )
     @ApiPropertyOptional({ type: [Number] })
     transaction_type_ids?: TransactionTypeEnum[];
+
+    @IsOptional()
+    @IsEnum(TransactionStatusEnum, { each: true })
+    @Transform(({ value }) =>
+        Array.isArray(value)
+          ? value.map((v) => Number(v))
+          : [Number(value)],
+      )
+    @ApiPropertyOptional({ type: [Number] })
+    transaction_status_ids?: TransactionStatusEnum[];
 
     transaction_bank_ids?: string[];
 

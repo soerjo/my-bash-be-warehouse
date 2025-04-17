@@ -15,6 +15,7 @@ import { DepositItemBulkDto, DepositItemDto } from '../dto/deposit-item.dto';
 import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
 import { TransactionWarehouseService } from '../../../modules/transaction-warehouse/services/transaction-warehouse.service';
 import { BankService } from '../../../modules/bank/services/bank.service';
+import { CompleteTransactionStoreDto } from '../dto/complete-transaction.dto';
 
 @Injectable()
 export class TransactionStoreService {
@@ -77,7 +78,7 @@ export class TransactionStoreService {
       createNewDepositTrxList.push(
         this.transactionStoreRepository.create({
           trx_id: dto.trx_id,
-          transaction_bank_id: dto.transaction_bank_id,
+          transaction_bank_id: item.transaction_bank_id,
           store_id: store.id,
           store_name: store.name,
           store_price: new Decimal(store.price),
@@ -255,11 +256,13 @@ export class TransactionStoreService {
   }
 
   @Transactional()
-  async updateStatusSuccess(updateTransactionStoreDto: UpdateTransactionStoreDto, userPayload: IJwtPayload) {
+  async updateStatusSuccess(updateTransactionStoreDto: CompleteTransactionStoreDto, userPayload: IJwtPayload) {
     const listTransactionStore = await this.transactionStoreRepository.find({
       where: [
         { id: In(updateTransactionStoreDto.ids) },
-        { transaction_bank_id: In(updateTransactionStoreDto.transaction_bank_id) },
+        ...(updateTransactionStoreDto.transaction_bank_id
+          ? [{ transaction_bank_id: In(updateTransactionStoreDto.transaction_bank_id) }]
+          : []),
       ],
     })
 
@@ -279,13 +282,13 @@ export class TransactionStoreService {
     }
 
     // should do sync to bank-service transaction is success
-    await this.bankService.completeBankTransaction({
-      transaction_id: updateTransactionStoreDto.transaction_bank_id,
+    await this.bankService.completeBankTransactionDetail({
+      transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
     }, userPayload.token);
   }
 
   @Transactional()
-  async updateStatusFailed(updateTransactionStoreDto: UpdateTransactionStoreDto, userPayload: IJwtPayload) {
+  async updateStatusFailed(updateTransactionStoreDto: CompleteTransactionStoreDto, userPayload: IJwtPayload) {
     const listTransactionStore = await this.transactionStoreRepository.find({
       where: [
         { id: In(updateTransactionStoreDto.ids) },
@@ -306,8 +309,8 @@ export class TransactionStoreService {
     await this.transactionStoreRepository.save(listTransactionStore);
 
     // should do sync to bank-service transaction is failed
-    await this.bankService.cancleBankTransaction({
-      transaction_id: updateTransactionStoreDto.transaction_bank_id,
-    }, userPayload.token);  
+    // await this.bankService.cancleBankTransaction({
+    //   transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
+    // }, userPayload.token);  
 }
 }

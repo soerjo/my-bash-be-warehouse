@@ -12,6 +12,7 @@ import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
 import { Roles } from '../../../common/decorator/role.decorator';
 import { RoleEnum } from '../../../common/constant/role.constant';
 import { GetBulkTransactionStoreDto } from '../dto/get-bulk-transaction.dto';
+import { CompleteTransactionStoreDto } from '../dto/complete-transaction.dto';
 
 @ApiTags('transaction-store')
 @ApiBearerAuth()
@@ -64,13 +65,13 @@ export class TransactionStoreController {
 
   @Patch('complete')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  updateSuccess(@CurrentUser() userPayload: IJwtPayload, @Body() updateTransactionStoreDto: UpdateTransactionStoreDto) {
+  updateSuccess(@CurrentUser() userPayload: IJwtPayload, @Body() updateTransactionStoreDto: CompleteTransactionStoreDto) {
     return this.transactionStoreService.updateStatusSuccess(updateTransactionStoreDto, userPayload);
   }
 
   @Patch('cancel')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  updateFailed(@CurrentUser() userPayload: IJwtPayload, @Body() updateTransactionStoreDto: UpdateTransactionStoreDto) {
+  updateFailed(@CurrentUser() userPayload: IJwtPayload, @Body() updateTransactionStoreDto: CompleteTransactionStoreDto) {
     return this.transactionStoreService.updateStatusFailed(updateTransactionStoreDto, userPayload);
   }
 }

@@ -16,7 +16,7 @@ export class BankService {
   ) {}
   
   async completeBankTransaction(dto: CompleteBankTransactionDto, token: string) {
-    this.logger.log('=======> completeBankTransaction');
+    this.logger.log(`=======> [PATCH] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/complete'}`);
     try {
       const response$ = this.httpService.patch<IResponse<any>>(
         this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/complete',
@@ -38,7 +38,7 @@ export class BankService {
   }
 
   async cancleBankTransaction(dto: CancelBankTransactionDto, token: string) {
-    this.logger.log('=======> cancleBankTransaction');
+    this.logger.log(`=======> [PATCH] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/cancel'}`);
     try {
       const response$ = this.httpService.patch<IResponse<any>>(
         this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/cancel',
@@ -56,5 +56,51 @@ export class BankService {
     } catch (error) {
       this.logger.error('Failed to cancle transaction warehouse', error.stack || error.message);
       throw new BadRequestException(error.response.data.message);
-    }    }
+    }    
+  }
+
+  
+  async completeBankTransactionDetail(dto: CompleteBankTransactionDto, token: string) {
+    this.logger.log(`=======> [PATCH] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/detail/complete'}`);
+    try {
+      const response$ = this.httpService.patch<IResponse<any>>(
+        this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/detail/complete',
+        {
+          ...dto,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const response = await lastValueFrom(response$);
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to cancle transaction warehouse', error.stack || error.message);
+      throw new BadRequestException(error.response.data.message);
+    }  
+  }
+
+  async cancleBankTransactionDetail(dto: CancelBankTransactionDto, token: string) {
+    this.logger.log(`=======> [PATCH] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/detail/cancel'}`);
+    try {
+      const response$ = this.httpService.patch<IResponse<any>>(
+        this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/detail/cancel',
+        {
+          ...dto,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const response = await lastValueFrom(response$);
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to cancle transaction warehouse', error.stack || error.message);
+      throw new BadRequestException(error.response.data.message);
+    }    
+  }
 }

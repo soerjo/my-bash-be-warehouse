@@ -4,6 +4,10 @@ import { ArrayMinSize, IsArray, IsNumber, IsOptional, IsString, ValidateNested }
 
 export class DetailDepositItemDto {
     @ApiProperty()
+    @IsString()
+    transaction_bank_id: string;
+
+    @ApiProperty()
     @IsNumber()
     store_id: number;
 
@@ -36,10 +40,6 @@ export class DepositItemDto {
 }
 
 export class DepositItemBulkDto {
-    @ApiProperty()
-    @IsString()
-    transaction_bank_id: string;
-
     @ApiProperty()
     @IsString()
     message: string;
