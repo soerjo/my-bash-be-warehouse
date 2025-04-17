@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { PaginationDto } from "../../../common/dto/pagination.dto";
 import { IsDate, IsNumber, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
-import { IsRangeDate } from "src/common/validation/isRangeDate.validation";
+import { IsRangeDate } from "../../../common/validation/isRangeDate.validation";
 
 export class FindLogsStoreDto extends PaginationDto {   
     @ApiPropertyOptional()

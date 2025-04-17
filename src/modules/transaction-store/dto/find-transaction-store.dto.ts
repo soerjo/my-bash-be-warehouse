@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { PaginationDto } from "../../../common/dto/pagination.dto";
 import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Transform, Type } from "class-transformer";
-import { TransactionTypeEnum } from "src/common/constant/transaction-type.constant";
+import { TransactionTypeEnum } from "../../../common/constant/transaction-type.constant";
 import { IsRangeDate } from "../../../common/validation/isRangeDate.validation";
 
 export class FindTransactionStoreDto extends PaginationDto {
