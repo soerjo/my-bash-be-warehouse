@@ -11,6 +11,7 @@ import { DepositItemBulkDto, DepositItemDto } from '../dto/deposit-item.dto';
 import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
 import { Roles } from '../../../common/decorator/role.decorator';
 import { RoleEnum } from '../../../common/constant/role.constant';
+import { GetBulkTransactionStoreDto } from '../dto/get-bulk-transaction.dto';
 
 @ApiTags('transaction-store')
 @ApiBearerAuth()
@@ -19,11 +20,11 @@ import { RoleEnum } from '../../../common/constant/role.constant';
 export class TransactionStoreController {
   constructor(private readonly transactionStoreService: TransactionStoreService) {}
 
-  @Post('deposit/')
-  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  depositItem(@CurrentUser() userPayload: IJwtPayload, @Body() dto: DepositItemDto) {
-    return this.transactionStoreService.depositItem(dto, userPayload);
-  }
+  // @Post('deposit/')
+  // @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  // depositItem(@CurrentUser() userPayload: IJwtPayload, @Body() dto: DepositItemDto) {
+  //   return this.transactionStoreService.depositItem(dto, userPayload);
+  // }
 
   @Post('deposit/bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
@@ -31,11 +32,11 @@ export class TransactionStoreController {
     return this.transactionStoreService.depositItemBulk(dto, userPayload);
   }
 
-  @Post('sell/')
-  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  sellItem(@CurrentUser() userPayload: IJwtPayload, @Body() dto: SellItemDto) {
-    return this.transactionStoreService.sellItem(dto, userPayload);
-  }
+  // @Post('sell/')
+  // @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  // sellItem(@CurrentUser() userPayload: IJwtPayload, @Body() dto: SellItemDto) {
+  //   return this.transactionStoreService.sellItem(dto, userPayload);
+  // }
 
   @Post('sell/bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
@@ -47,6 +48,12 @@ export class TransactionStoreController {
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindTransactionStoreDto) {
     return this.transactionStoreService.findAll(dto, userPayload);
+  }
+  
+  @Get('bulk')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  getBulk(@Query() dto: GetBulkTransactionStoreDto) {
+    return this.transactionStoreService.getBulkByTransactionBankIds(dto.transaction_bank_ids);
   }
 
   @Get(':id')

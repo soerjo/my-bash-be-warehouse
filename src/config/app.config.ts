@@ -11,7 +11,7 @@ interface IAppConfig {
   DATABASE_URL: string;
   PUBLIC_KEY: string;
   USER_SERVICE_URL: string;
-  WAREHOUSE_SERVICE_URL?: string;
+  BANK_SERVICE_URL: string;
   PICKUP_SERVICE_URL?: string;
 }
 
@@ -24,6 +24,7 @@ const configs: IAppConfig = {
   DATABASE_URL: configService.get(`DATABASE_URL`),
   PUBLIC_KEY: configService.get(`PUBLIC_KEY`),
   USER_SERVICE_URL: configService.get(`USER_SERVICE_URL`),
+  BANK_SERVICE_URL: configService.get(`BANK_SERVICE_URL`),
 };
 
 const schema = Joi.object<IAppConfig>({
@@ -34,6 +35,7 @@ const schema = Joi.object<IAppConfig>({
   DATABASE_URL: Joi.string().required(),
   PUBLIC_KEY: Joi.string().required(),
   USER_SERVICE_URL: Joi.string().required(),
+  BANK_SERVICE_URL: Joi.string().required(),
 });
 
 export default registerAs('app_configs', () => {

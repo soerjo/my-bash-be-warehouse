@@ -14,12 +14,14 @@ import { Transactional } from 'typeorm-transactional';
 import { DepositItemBulkDto, DepositItemDto } from '../dto/deposit-item.dto';
 import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
 import { TransactionWarehouseService } from '../../../modules/transaction-warehouse/services/transaction-warehouse.service';
+import { BankService } from '../../../modules/bank/services/bank.service';
 
 @Injectable()
 export class TransactionStoreService {
   constructor(
     private readonly transactionStoreRepository: TransactionStoreRepository,
     private readonly transactionWarehouseService: TransactionWarehouseService,
+    private readonly bankService: BankService,
     private readonly storeService: StoreService,
     private readonly dataSource: DataSource,
   ) {}
@@ -208,36 +210,36 @@ export class TransactionStoreService {
     });
   }
 
-  async transfer(transactionList: CreateTransactionStoreDto[], userPayload: IJwtPayload) {
-    return this.dataSource.transaction(async (manager) => {
-      let listNewTransactionStore: TransactionStoreEntity[] = [];
-      for (const transaction of transactionList) {
-        const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
-        if (!store) throw new BadRequestException('Category not found');
+  // async transfer(transactionList: CreateTransactionStoreDto[], userPayload: IJwtPayload) {
+  //   return this.dataSource.transaction(async (manager) => {
+  //     let listNewTransactionStore: TransactionStoreEntity[] = [];
+  //     for (const transaction of transactionList) {
+  //       const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
+  //       if (!store) throw new BadRequestException('Category not found');
 
-        const newTransactionStore = this.transactionStoreRepository.create({
-          ...transaction,
-          store_price: new Decimal(store.price),
-          total_price: new Decimal(store.price).mul(transaction.amount),
-          created_by: userPayload.id,
-          bank_id: userPayload.bank_id,
-          warehouse_id: userPayload.warehouse_id,
-          transaction_status_id: TransactionStatusEnum.PENDING,
-          transaction_type_id: TransactionTypeEnum.DEPOSIT,
-        });
-        console.log({newTransactionStore})
-        listNewTransactionStore.push(newTransactionStore);
-      }
+  //       const newTransactionStore = this.transactionStoreRepository.create({
+  //         ...transaction,
+  //         store_price: new Decimal(store.price),
+  //         total_price: new Decimal(store.price).mul(transaction.amount),
+  //         created_by: userPayload.id,
+  //         bank_id: userPayload.bank_id,
+  //         warehouse_id: userPayload.warehouse_id,
+  //         transaction_status_id: TransactionStatusEnum.PENDING,
+  //         transaction_type_id: TransactionTypeEnum.DEPOSIT,
+  //       });
+  //       console.log({newTransactionStore})
+  //       listNewTransactionStore.push(newTransactionStore);
+  //     }
 
-      const transactionStore = await manager.insert(TransactionStoreEntity, listNewTransactionStore);
+  //     const transactionStore = await manager.insert(TransactionStoreEntity, listNewTransactionStore);
 
-      // do a transaction to update transaction-warehouse
-      // add opposite storage warehouse
-      // decrease warehouse storage
+  //     // do a transaction to update transaction-warehouse
+  //     // add opposite storage warehouse
+  //     // decrease warehouse storage
 
-      return transactionStore;
-    });
-  }
+  //     return transactionStore;
+  //   });
+  // }
 
   findAll(dto: FindTransactionStoreDto, userPayload: IJwtPayload) {
     return this.transactionStoreRepository.findAll(dto, userPayload);
@@ -247,13 +249,26 @@ export class TransactionStoreService {
     return this.transactionStoreRepository.findOneBy({ id });
   }
 
+  async getBulkByTransactionBankIds(transaction_bank_ids: string[]) {
+    const {data} = await this.transactionStoreRepository.findAll({ transaction_bank_ids });
+    return data;
+  }
+
   @Transactional()
   async updateStatusSuccess(updateTransactionStoreDto: UpdateTransactionStoreDto, userPayload: IJwtPayload) {
     const listTransactionStore = await this.transactionStoreRepository.find({
-      where: { id: In(updateTransactionStoreDto.ids) },
+      where: [
+        { id: In(updateTransactionStoreDto.ids) },
+        { transaction_bank_id: In(updateTransactionStoreDto.transaction_bank_id) },
+      ],
     })
 
+
     listTransactionStore.forEach((item) => {
+      if (item.transaction_status_id !== TransactionStatusEnum.PENDING) {
+        throw new BadRequestException(`transaction id: ${item.id} already success or failed`);
+      }
+      
       item.transaction_status_id = TransactionStatusEnum.SUCCESS;
     });
 
@@ -264,6 +279,9 @@ export class TransactionStoreService {
     }
 
     // should do sync to bank-service transaction is success
+    await this.bankService.completeBankTransaction({
+      transaction_id: updateTransactionStoreDto.transaction_bank_id,
+    }, userPayload.token);
   }
 
   @Transactional()
@@ -278,11 +296,18 @@ export class TransactionStoreService {
     });
 
     listTransactionStore.forEach((item) => {
+      if (item.transaction_status_id !== TransactionStatusEnum.PENDING) {
+        throw new BadRequestException(`transaction id: ${item.id} already success or failed`);
+      }
+
       item.transaction_status_id = TransactionStatusEnum.FAILED;
     });
 
     await this.transactionStoreRepository.save(listTransactionStore);
 
     // should do sync to bank-service transaction is failed
-  }
+    await this.bankService.cancleBankTransaction({
+      transaction_id: updateTransactionStoreDto.transaction_bank_id,
+    }, userPayload.token);  
+}
 }

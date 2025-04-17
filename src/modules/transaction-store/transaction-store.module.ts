@@ -4,9 +4,10 @@ import { TransactionStoreController } from './controllers/transaction-store.cont
 import { TransactionStoreRepository } from './repositories/transaction-store.repository';
 import { StoreModule } from '../store/store.module';
 import { TransactionWarehouseModule } from '../transaction-warehouse/transaction-warehouse.module';
+import { BankModule } from '../bank/bank.module';
 
 @Module({
-  imports: [StoreModule, TransactionWarehouseModule],
+  imports: [StoreModule, TransactionWarehouseModule, BankModule],
   controllers: [TransactionStoreController],
   providers: [TransactionStoreService, TransactionStoreRepository],
   exports: [TransactionStoreService],

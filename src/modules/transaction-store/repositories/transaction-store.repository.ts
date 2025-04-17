@@ -12,7 +12,7 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
     }
 
 
-        async findAll(dto: FindTransactionStoreDto, userPayload: IJwtPayload, manager?: EntityManager) {
+        async findAll(dto: FindTransactionStoreDto, userPayload?: IJwtPayload, manager?: EntityManager) {
             const repo = manager ? manager.getRepository(TransactionStoreEntity) : this;
             const queryBuilder = repo.createQueryBuilder('transaction_store');
             queryBuilder.leftJoinAndSelect('transaction_store.transactionStatus', 'transactionStatus');
@@ -49,6 +49,10 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
               "warehouse.id as warehouse_id",
               "warehouse.name as warehouse_name",
             ])
+
+            if(dto.transaction_bank_ids) {
+              queryBuilder.andWhere('transaction_store.transaction_bank_id In(:...transaction_bank_ids)', { transaction_bank_ids: dto.transaction_bank_ids });
+            }
 
             if (dto?.store_ids) {
               queryBuilder.andWhere('transaction_store.store_id In(:...store_id)', { store_id: dto.store_ids });
@@ -94,6 +98,9 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
               queryBuilder.andWhere('transaction_store.created_at <= :end_date', { end_date: endDate });
             }
         
+            dto.page = dto.page ?? 1;
+            dto.take = dto.take ?? 10;
+            
             queryBuilder.orderBy('transaction_store.created_at', 'DESC')
             queryBuilder.skip((dto.page - 1) * dto.take).take(dto.take)
           

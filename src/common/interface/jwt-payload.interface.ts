@@ -10,4 +10,5 @@ export interface IJwtPayload {
   warehouse_id: number | null;
   is_temp_password?: boolean;
   is_phone_valid?: boolean;
+  token?: string;
 }

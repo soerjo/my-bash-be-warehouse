@@ -55,6 +55,8 @@ export class FindTransactionStoreDto extends PaginationDto {
     @ApiPropertyOptional({ type: [Number] })
     transaction_type_ids?: TransactionTypeEnum[];
 
+    transaction_bank_ids?: string[];
+
     bank_id?: number;
     warehouse_id?: number;
 }
