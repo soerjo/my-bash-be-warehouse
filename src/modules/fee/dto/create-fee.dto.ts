@@ -10,9 +10,9 @@ export class CreateFeeDto {
     @IsNumber()
     percentage: number;
 
-    @ApiPropertyOptional()
-    @IsNumber()
-    warehouse_id?: number;
+    // @ApiPropertyOptional()
+    // @IsNumber()
+    // warehouse_id?: number;
 
     store_id?: number;
 }

@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateFeeDto } from '../dto/create-fee.dto';
 import { UpdateFeeDto } from '../dto/update-fee.dto';
 import { FeeRepository } from '../repositories/fee.repository';
 import { IsNull,  } from 'typeorm';
 import Decimal from 'decimal.js';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { FindFeeDto } from '../dto/find-fee.dto';
-import { WarehouseService } from '../../../modules/warehouse/services/warehouse.service';
 import { FeeEntity } from '../entities/fee.entity';
 
 @Injectable()
@@ -32,33 +30,6 @@ export class FeeService {
     return { data, meta } 
   }
 
-  // async getSysmtemFee() {
-  //   const { percentage } = await this.feeRepository.findOne({
-  //     where: {
-  //       bank_id: IsNull(),
-  //       warehouse_id: IsNull(),
-  //       store_id: IsNull(),
-  //     }
-  //   })
-
-  //   return percentage;
-  // }
-
-  // async updateSystemFee(updateFeeDto: UpdateFeeDto, userPayload: IJwtPayload) {
-  //   const fee = await this.feeRepository.findOne({
-  //     where: {
-  //       bank_id: IsNull(),
-  //       warehouse_id: IsNull(),
-  //       store_id: IsNull(),
-  //     }
-  //   })
-
-  //   fee.percentage = new Decimal(updateFeeDto.percentage);
-  //   fee.updated_by = userPayload.id;
-
-  //   await this.feeRepository.save(fee);
-  // }
-
   async findOne(userPayload: IJwtPayload, warehouse_id?: number) {
     const fee = await this.feeRepository.findOne({
       where: {
@@ -76,8 +47,8 @@ export class FeeService {
   async update(updateFeeDto: UpdateFeeDto, userPayload: IJwtPayload) {
     const fee = await this.feeRepository.findOne({
       where: {
-        // bank_id: userPayload.bank_id,
-        warehouse_id: userPayload.warehouse_id ?? updateFeeDto.warehouse_id,
+        ...(updateFeeDto.id ? { id: updateFeeDto.id } : {}),
+        ...(userPayload.warehouse_id ? { warehouse_id: userPayload.warehouse_id } : {}),
         store_id: updateFeeDto.store_id ?? IsNull(),
       }
     })
