@@ -1,5 +1,4 @@
 import { DataSource, EntityManager, Repository } from "typeorm";
-import { IJwtPayload } from "../../../common/interface/jwt-payload.interface";
 import { Injectable } from "@nestjs/common";
 import { TransactionStoreEntity } from "../entities/transaction-store.entity";
 import { FindTransactionStoreDto } from "../dto/find-transaction-store.dto";
@@ -16,7 +15,7 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
     }
 
 
-        async findAll(dto: FindTransactionStoreDto, userPayload?: IJwtPayload, manager?: EntityManager) {
+        async findAll(dto: FindTransactionStoreDto, manager?: EntityManager) {
           const repo = manager ? manager.getRepository(TransactionStoreEntity) : this;
           const queryBuilder = repo.createQueryBuilder('transaction_store');
           queryBuilder.leftJoinAndSelect('transaction_store.transactionStatus', 'transactionStatus');
@@ -167,6 +166,18 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
           if(dto.warehouse_id) {
             queryBuilderStory.andWhere('category.warehouse_id = :warehouse_id', { warehouse_id: dto.warehouse_id });
             queryBuilderTransaction.andWhere('transaction_store.warehouse_id = :warehouse_id', { warehouse_id: dto.warehouse_id });
+          }
+
+          if(dto?.start_date) {
+            const startDate = new Date(dto.start_date);
+            startDate.setHours(0, 0, 0, 0);
+            queryBuilderTransaction.andWhere('transaction_store.created_at >= :start_date', { start_date: startDate });
+          }
+      
+          if(dto?.end_date) {
+            const endDate = new Date(dto.end_date);
+            endDate.setHours(23, 59, 59, 999);
+            queryBuilderTransaction.andWhere('transaction_store.created_at <= :end_date', { end_date: endDate });
           }
 
           const [transaction, story] = await Promise.all([

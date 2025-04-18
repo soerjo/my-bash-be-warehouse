@@ -16,6 +16,7 @@ import { TransactionWarehouseService } from '../../../modules/transaction-wareho
 import { BankService } from '../../../modules/bank/services/bank.service';
 import { CompleteTransactionStoreDto } from '../dto/complete-transaction.dto';
 import { getTotalByCategoryDto } from '../dto/get-total-category.dto';
+import { subDays } from 'date-fns';
 
 @Injectable()
 export class TransactionStoreService {
@@ -243,7 +244,13 @@ export class TransactionStoreService {
   // }
 
   findAll(dto: FindTransactionStoreDto, userPayload: IJwtPayload) {
-    return this.transactionStoreRepository.findAll(dto, userPayload);
+    dto.start_date = dto.start_date ?? subDays(new Date(), 7);
+    dto.end_date = dto.end_date ?? new Date();
+
+    return this.transactionStoreRepository.findAll({
+      ...dto,
+      bank_id: userPayload.bank_id ?? dto.bank_id,
+    });
   }
 
   findOne(id: string) {
