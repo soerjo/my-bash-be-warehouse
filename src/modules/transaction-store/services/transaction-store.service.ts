@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateTransactionStoreDto } from '../dto/create-transaction-store.dto';
-import { UpdateTransactionStoreDto } from '../dto/update-transaction-store.dto';
 import { FindTransactionStoreDto } from '../dto/find-transaction-store.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { TransactionStoreRepository } from '../repositories/transaction-store.repository';
@@ -16,6 +15,7 @@ import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
 import { TransactionWarehouseService } from '../../../modules/transaction-warehouse/services/transaction-warehouse.service';
 import { BankService } from '../../../modules/bank/services/bank.service';
 import { CompleteTransactionStoreDto } from '../dto/complete-transaction.dto';
+import { getTotalByCategoryDto } from '../dto/get-total-category.dto';
 
 @Injectable()
 export class TransactionStoreService {
@@ -312,5 +312,12 @@ export class TransactionStoreService {
     // await this.bankService.cancleBankTransaction({
     //   transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
     // }, userPayload.token);  
-}
+  }
+
+  getTotalByStore(dto: getTotalByCategoryDto, userPayload: IJwtPayload) {
+    return this.transactionStoreRepository.getTotalByStore({
+      ...dto, 
+      warehouse_id: userPayload.warehouse_id ?? dto.warehouse_id,
+    });
+  }
 }

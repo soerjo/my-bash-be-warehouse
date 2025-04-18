@@ -1,18 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, UseGuards, Query } from '@nestjs/common';
 import { TransactionStoreService } from '../services/transaction-store.service';
-import { UpdateTransactionStoreDto } from '../dto/update-transaction-store.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guard/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guard/role.guard';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
 import { CurrentUser } from '../../../common/decorator/jwt-payload.decorator';
 import { FindTransactionStoreDto } from '../dto/find-transaction-store.dto';
-import { DepositItemBulkDto, DepositItemDto } from '../dto/deposit-item.dto';
-import { SellItemBulkDto, SellItemDto } from '../dto/sell-item.dto';
+import { DepositItemBulkDto } from '../dto/deposit-item.dto';
+import { SellItemBulkDto } from '../dto/sell-item.dto';
 import { Roles } from '../../../common/decorator/role.decorator';
 import { RoleEnum } from '../../../common/constant/role.constant';
 import { GetBulkTransactionStoreDto } from '../dto/get-bulk-transaction.dto';
 import { CompleteTransactionStoreDto } from '../dto/complete-transaction.dto';
+import { getTotalByCategoryDto } from '../dto/get-total-category.dto';
 
 @ApiTags('transaction-store')
 @ApiBearerAuth()
@@ -33,12 +33,6 @@ export class TransactionStoreController {
     return this.transactionStoreService.depositItemBulk(dto, userPayload);
   }
 
-  // @Post('sell/')
-  // @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  // sellItem(@CurrentUser() userPayload: IJwtPayload, @Body() dto: SellItemDto) {
-  //   return this.transactionStoreService.sellItem(dto, userPayload);
-  // }
-
   @Post('sell/bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   sellItemBulk(@CurrentUser() userPayload: IJwtPayload, @Body() dto: SellItemBulkDto) {
@@ -49,6 +43,12 @@ export class TransactionStoreController {
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   findAll(@CurrentUser() userPayload: IJwtPayload, @Query() dto: FindTransactionStoreDto) {
     return this.transactionStoreService.findAll(dto, userPayload);
+  }
+
+  @Get('total-by-store')
+  @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
+  getTotalByStore(@CurrentUser() userPayload: IJwtPayload, @Query() dto: getTotalByCategoryDto) {
+    return this.transactionStoreService.getTotalByStore(dto, userPayload);
   }
   
   @Get('bulk')
