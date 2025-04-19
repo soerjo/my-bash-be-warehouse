@@ -41,6 +41,6 @@ export class getTotalByCategoryDto {
   @Type(() => Date)
   @IsDate()
   // @IsGreaderDate('start_date')
-  @IsRangeDate('start_date', 7)
+  @IsRangeDate('start_date', 30)
   end_date?: Date;
 }
