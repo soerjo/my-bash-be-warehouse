@@ -27,6 +27,11 @@ export class TransactionStoreController {
   //   return this.transactionStoreService.depositItem(dto, userPayload);
   // }
 
+  @Get('test')
+  testFetch() {
+    return this.transactionStoreService.testFetch();
+  }
+
   @Post('deposit/bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   depositItemBulk(@CurrentUser() userPayload: IJwtPayload, @Body() dto: DepositItemBulkDto) {

@@ -327,4 +327,8 @@ export class TransactionStoreService {
       warehouse_id: userPayload.warehouse_id ?? dto.warehouse_id,
     });
   }
+
+  testFetch() {
+    return this.bankService.testFetch();
+  }
 }

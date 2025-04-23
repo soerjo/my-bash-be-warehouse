@@ -103,4 +103,26 @@ export class BankService {
       throw new BadRequestException(error.response.data.message);
     }    
   }
+
+  async testFetch() {
+    this.logger.log(`=======> [GET] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/test'}`);
+    try {
+      const response$ = this.httpService.get<IResponse<any>>(
+        this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/test',
+        // {
+        //   ...dto,
+        // },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // },
+      );
+      const response = await lastValueFrom(response$);
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to cancle transaction warehouse', error.stack || error.message);
+      throw new BadRequestException(error.response.data.message);
+    }    
+  }
 }
