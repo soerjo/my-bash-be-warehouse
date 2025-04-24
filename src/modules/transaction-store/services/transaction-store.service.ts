@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateTransactionStoreDto } from '../dto/create-transaction-store.dto';
 import { FindTransactionStoreDto } from '../dto/find-transaction-store.dto';
 import { IJwtPayload } from '../../../common/interface/jwt-payload.interface';
@@ -24,8 +24,10 @@ export class TransactionStoreService {
     private readonly transactionStoreRepository: TransactionStoreRepository,
     private readonly transactionWarehouseService: TransactionWarehouseService,
     private readonly bankService: BankService,
-    private readonly storeService: StoreService,
     private readonly dataSource: DataSource,
+
+    @Inject(forwardRef(() => StoreService))
+    private readonly storeService: StoreService,
   ) {}
 
   @Transactional()
@@ -34,14 +36,16 @@ export class TransactionStoreService {
     if (!store) throw new BadRequestException('store not found');
 
     const total_price = new Decimal(store.price).mul(dto.amount);
-    const fee_price = new Decimal(store.fee).mul(total_price);
+    const fee_price = new Decimal(store.fee).mul(total_price).div(100);
     const final_price = total_price.minus(fee_price);
+
     const createNewDepositTrx = this.transactionStoreRepository.create({
       trx_id: dto.trx_id,
       transaction_bank_id: dto.transaction_bank_id,
       store_id: store.id,
       store_name: store.name,
-      store_price: new Decimal(store.price),
+      store_price: new Decimal(store.store_price),
+      store_buy_price: new Decimal(store.price),
       amount: dto.amount,
       total_price: total_price,
       fee_percent: store.fee,
@@ -73,7 +77,7 @@ export class TransactionStoreService {
       const store = storeList.find((store) => store.id === item.store_id);
       
       const total_price = new Decimal(store.price).mul(item.amount);
-      const fee_price = new Decimal(store.fee).mul(total_price);
+      const fee_price = new Decimal(store.fee).mul(total_price).div(100);
       const final_price = total_price.minus(fee_price);
 
       createNewDepositTrxList.push(
@@ -82,7 +86,8 @@ export class TransactionStoreService {
           transaction_bank_id: item.transaction_bank_id,
           store_id: store.id,
           store_name: store.name,
-          store_price: new Decimal(store.price),
+          store_price: new Decimal(store.store_price),
+          store_buy_price: new Decimal(store.price),
           amount: item.amount,
           total_price: total_price,
           fee_percent: store.fee,
@@ -119,7 +124,8 @@ export class TransactionStoreService {
       trx_id: dto.trx_id,
       store_id: store.id,
       store_name: store.name,
-      store_price: new Decimal(store.price),
+      store_price: new Decimal(store.store_price),
+      store_buy_price: new Decimal(store.price),
       amount: dto.amount,
       total_price: total_price,
       fee_percent: store.fee,
@@ -158,7 +164,8 @@ export class TransactionStoreService {
         this.transactionStoreRepository.create({
           store_id: store.id,
           store_name: store.name,
-          store_price: new Decimal(store.price),
+          store_price: new Decimal(store.store_price),
+          store_buy_price: new Decimal(store.price),
           amount: item.amount,
           total_price: total_price,
           fee_percent: store.fee,
@@ -186,12 +193,12 @@ export class TransactionStoreService {
     return this.dataSource.transaction(async (manager) => {
       let listNewTransactionStore: TransactionStoreEntity[] = [];
       for (const transaction of transactionList) {
-        const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
+        const store = await this.storeService.findOneByStoreId(transaction.store_id,userPayload);
         if (!store) throw new BadRequestException('Category not found');
 
         const newTransactionStore = this.transactionStoreRepository.create({
           ...transaction,
-          store_price: new Decimal(store.price),
+          store_price: new Decimal(store.store_price),
           total_price: new Decimal(store.price).mul(transaction.amount),
           created_by: userPayload.id,
           bank_id: userPayload.bank_id,
@@ -211,37 +218,6 @@ export class TransactionStoreService {
       return transactionStore;
     });
   }
-
-  // async transfer(transactionList: CreateTransactionStoreDto[], userPayload: IJwtPayload) {
-  //   return this.dataSource.transaction(async (manager) => {
-  //     let listNewTransactionStore: TransactionStoreEntity[] = [];
-  //     for (const transaction of transactionList) {
-  //       const store = await this.storeService.findOne(transaction.store_id,userPayload,  manager);
-  //       if (!store) throw new BadRequestException('Category not found');
-
-  //       const newTransactionStore = this.transactionStoreRepository.create({
-  //         ...transaction,
-  //         store_price: new Decimal(store.price),
-  //         total_price: new Decimal(store.price).mul(transaction.amount),
-  //         created_by: userPayload.id,
-  //         bank_id: userPayload.bank_id,
-  //         warehouse_id: userPayload.warehouse_id,
-  //         transaction_status_id: TransactionStatusEnum.PENDING,
-  //         transaction_type_id: TransactionTypeEnum.DEPOSIT,
-  //       });
-  //       console.log({newTransactionStore})
-  //       listNewTransactionStore.push(newTransactionStore);
-  //     }
-
-  //     const transactionStore = await manager.insert(TransactionStoreEntity, listNewTransactionStore);
-
-  //     // do a transaction to update transaction-warehouse
-  //     // add opposite storage warehouse
-  //     // decrease warehouse storage
-
-  //     return transactionStore;
-  //   });
-  // }
 
   findAll(dto: FindTransactionStoreDto, userPayload: IJwtPayload) {
     dto.start_date = dto.start_date ?? subDays(new Date(), 7);
@@ -330,5 +306,44 @@ export class TransactionStoreService {
 
   testFetch() {
     return this.bankService.testFetch();
+  }
+
+  @Transactional()
+  async SyncTransactionStore(storeId: number, userPayload: IJwtPayload) {
+    // find store
+    const store = await this.storeService.findOneByStoreId(storeId, userPayload);
+    if (!store) throw new BadRequestException('store not found');
+
+    // find transactin with pending status
+    let transactionStore = await this.transactionStoreRepository.find({
+      where: {
+        store_id: store.id,
+        transaction_status_id: TransactionStatusEnum.PENDING,
+        warehouse_id: userPayload.warehouse_id,
+      },
+    });
+
+    if (!transactionStore.length) throw new BadRequestException(`no transaction pending with store_id: ${storeId}`);
+
+    // update transaction with storeId
+    transactionStore.forEach((transaction) => {
+
+      const total_price = new Decimal(store.store_price).mul(transaction.amount);
+      const fee_price = new Decimal(store.fee).mul(total_price).div(100);
+      const final_price = total_price.minus(fee_price);
+
+      transaction.store_id = store.id;
+      transaction.store_name = store.name;
+      transaction.store_price = new Decimal(store.store_price);
+      transaction.store_buy_price = new Decimal(store.price);
+      transaction.total_price = total_price;
+      transaction.fee_percent = store.fee;
+      transaction.fee_price = fee_price;
+      transaction.final_price = final_price;
+    })
+
+    const transaction = await this.transactionStoreRepository.save(transactionStore);
+    const transaction_bank_ids = transaction.map((item) => item.transaction_bank_id);
+    return transaction_bank_ids;
   }
 }

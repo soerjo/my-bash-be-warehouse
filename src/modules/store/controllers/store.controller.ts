@@ -12,13 +12,17 @@ import { FindBulkDto } from '../dto/find-bulk.dto';
 import { Roles } from '../../../common/decorator/role.decorator';
 import { RoleEnum } from '../../../common/constant/role.constant';
 import { FindLogsStoreDto } from '../dto/find-log-store.dto';
+import { BankService } from '../../../modules/bank/services/bank.service';
 
 @ApiTags('store')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('store')
 export class StoreController {
-  constructor(private readonly storeService: StoreService) {}
+  constructor(
+    private readonly storeService: StoreService,
+    private readonly bankService: BankService,
+  ) {}
 
   @Post()
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
@@ -35,7 +39,7 @@ export class StoreController {
   @Get('bulk')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
   getBulk(@Query() dto: FindBulkDto, @CurrentUser() userPayload: IJwtPayload) {
-    return this.storeService.findByIds(dto.ids, userPayload);
+    return this.storeService.findOneByStoreIds(dto.ids, userPayload);
   }
   
   @Get(':id')
@@ -52,8 +56,11 @@ export class StoreController {
 
   @Patch(':id')
   @Roles([ RoleEnum.SYSTEM_ADMIN, RoleEnum.ADMIN_BANK ])
-  update(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
-    return this.storeService.update(+id, updateStoreDto, userPayload);
+  async update(@CurrentUser() userPayload: IJwtPayload, @Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
+    const transactionBankIds = await this.storeService.update(+id, updateStoreDto, userPayload);
+
+    // do sync to bank service
+    await this.bankService.syncBankService(transactionBankIds, userPayload.token);
   }
 
   @Delete(':id')

@@ -125,4 +125,26 @@ export class BankService {
       throw new BadRequestException(error.response.data.message);
     }    
   }
+
+  async syncBankService(transaction_bank_ids: string[], token: string) {
+    this.logger.log(`=======> [GET] ${this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/sync-store-price'}`);
+    try {
+      const response$ = this.httpService.patch<IResponse<any>>(
+        this.configService.get<string>('BANK_SERVICE_URL') + '/transaction/sync-store-price',
+        {
+          transaction_bank_ids,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const response = await lastValueFrom(response$);
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to cancle transaction warehouse', error.stack || error.message);
+      throw new BadRequestException(error.response.data.message);
+    }    
+  }
 }

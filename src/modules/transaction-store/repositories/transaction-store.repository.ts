@@ -29,6 +29,7 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
             "transaction_store.store_id as store_id",
             "transaction_store.store_name as store_name",
             "transaction_store.store_price as store_price",
+            "transaction_store.store_buy_price as store_buy_price",
             "transaction_store.amount as amount",
             "transaction_store.total_price as total_price",
             "transaction_store.fee_percent as fee_percent",
@@ -126,6 +127,7 @@ export class TransactionStoreRepository extends Repository<TransactionStoreEntit
             ...data, 
             
             store_price: new Decimal(data.store_price).toNumber(),
+            store_buy_price: new Decimal(data.store_buy_price).toNumber(),
             amount: new Decimal(data.amount).toNumber(),
             total_price: new Decimal(data.total_price).toNumber(),
             fee_percent: new Decimal(data.fee_percent).toNumber(),

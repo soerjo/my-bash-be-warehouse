@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
 import { FindStoreDto } from '../dto/find-store.dto';
@@ -14,6 +14,7 @@ import { FeeEntity } from '../../../modules/fee/entities/fee.entity';
 import { StoreLogsRepository } from '../repositories/store-logs.repository';
 import { FindLogsStoreDto } from '../dto/find-log-store.dto';
 import { ResponseFindStoreByIdDto } from '../dto/respose-find-store-by-id.dto';
+import { TransactionStoreService } from '../../../modules/transaction-store/services/transaction-store.service';
 
 @Injectable()
 export class StoreService {
@@ -22,6 +23,9 @@ export class StoreService {
     private readonly storeLogsRepository: StoreLogsRepository,
     private readonly categoryService: CategoryService,
     private readonly feeService: FeeService,
+
+    @Inject(forwardRef(() => TransactionStoreService))
+    private readonly transactionStoreService: TransactionStoreService,
   
   ) {}
 
@@ -101,18 +105,6 @@ export class StoreService {
     })
   }
 
-  findByIds(ids: number[], userPayload?: IJwtPayload, manager?: EntityManager) {
-    const repositories = manager ? manager.getRepository(StoreEntity) : this.storeRepository;
-    return repositories.find({ 
-      where: { 
-          id: In(ids),
-          bank_id: userPayload?.bank_id,
-          warehouse_id: userPayload?.warehouse_id,
-        }, 
-      relations: ['category.unit'] 
-    });
-  }
-
   @Transactional()
   async update(id: number, updateStoreDto: UpdateStoreDto, userPayload: IJwtPayload) {
     const store = await this.findOneByStoreId(id, userPayload)
@@ -165,8 +157,11 @@ export class StoreService {
       updated_by: userPayload?.id,
     });
 
-
+    const transactionBankId = await this.transactionStoreService.SyncTransactionStore(id, userPayload);
+    return transactionBankId;
   }
+
+
 
   async createStoreLogs(store: ResponseFindStoreByIdDto, updateStoreDto: UpdateStoreDto, userPayload: IJwtPayload) {
     const last_logs_id = await this.storeLogsRepository.findOne({

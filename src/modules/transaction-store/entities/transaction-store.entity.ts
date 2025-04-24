@@ -37,6 +37,22 @@ export class TransactionStoreEntity extends HistoryEntityAbstract {
   store_price: Decimal;
 
   @Column({
+    default: 0, 
+    type: 'decimal',
+    precision: 18,
+    scale: 4,
+    transformer: {
+      to: (value: Decimal | string | number): string => {
+        return new Decimal(value ?? 0).toFixed(4, Decimal.ROUND_HALF_UP);
+      },
+      from: (value: string): Decimal => {
+        return new Decimal(value ?? 0);
+      },
+    },
+  })
+  store_buy_price: Decimal;
+
+  @Column({
       default: 0, 
       type: 'decimal',
       precision: 18,
