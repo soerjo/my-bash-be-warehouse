@@ -289,9 +289,9 @@ export class TransactionStoreService {
     }
 
     // should do sync to bank-service transaction is success
-    await this.bankService.completeBankTransactionDetail({
-      transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
-    }, userPayload.token);
+    // await this.bankService.completeBankTransactionDetail({
+    //   transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
+    // }, userPayload.token);
   }
 
   @Transactional()
@@ -316,9 +316,9 @@ export class TransactionStoreService {
     await this.transactionStoreRepository.save(listTransactionStore);
 
     // should do sync to bank-service transaction is failed
-    await this.bankService.cancleBankTransaction({
-      transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
-    }, userPayload.token);  
+    // await this.bankService.cancleBankTransaction({
+    //   transaction_id: listTransactionStore.map(data => data.transaction_bank_id),
+    // }, userPayload.token);  
   }
 
   getTotalByStore(dto: getTotalByCategoryDto, userPayload: IJwtPayload) {
