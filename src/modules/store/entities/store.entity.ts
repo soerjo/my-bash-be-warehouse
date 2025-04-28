@@ -29,6 +29,9 @@ export class StoreEntity extends MainEntityAbstract {
   @Column({nullable: true})
   fee_id?: number;
 
+  @Column({nullable: true, type: 'text'})
+  description: string;
+
   @Column({nullable: true})
   bank_id: number;
 

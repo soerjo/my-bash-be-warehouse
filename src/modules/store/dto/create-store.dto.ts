@@ -18,6 +18,11 @@ export class CreateStoreDto {
 
     @ApiPropertyOptional()
     @IsOptional()
+    @IsString()
+    description?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsBoolean()
     is_custom_fee?: boolean;
 
