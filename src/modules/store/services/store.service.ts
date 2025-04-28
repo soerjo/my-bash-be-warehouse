@@ -58,6 +58,7 @@ export class StoreService {
       price: createStoreDto.price,
       created_by: userPayload.id,
       bank_id: userPayload.bank_id,
+      description: createStoreDto.description,
       warehouse_id: userPayload.warehouse_id,
       category_id: createStoreDto.category_id,
       fee_id: fee?.id,
