@@ -39,8 +39,8 @@ export class FeeRepository  extends Repository<FeeEntity> {
     
         const processedData = rawData.map(data => ({
           // ...data, 
-          "id": 1,
-          // "store_id": data.fee_store_id,
+          "id": data.fee_id,
+          "store_id": data.fee_store_id,
           "store_name": data.store_name,
           "percentage": new Decimal(data.fee_percentage).toNumber(),
           "warehouse_name": (data.fee_bank_id && data.fee_warehouse_id) ? data.warehouse_name : "System Fee",

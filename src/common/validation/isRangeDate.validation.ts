@@ -22,8 +22,8 @@ export class IsRangeDateConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    const [relatedPropertyName] = args.constraints;
-    return `${args.property} max is 7 days from ${relatedPropertyName}`;
+    const [relatedPropertyName, range_date] = args.constraints;
+    return `${args.property} max is 30 days from ${relatedPropertyName}`;
   }
 }
 

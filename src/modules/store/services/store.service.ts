@@ -50,11 +50,10 @@ export class StoreService {
         percentage: new Decimal(createStoreDto.custom_fee),
         bank_id: userPayload.bank_id,
         warehouse_id: userPayload.warehouse_id,
-        store_id: store.id,
       })
     }
 
-    const newStore = this.storeRepository.create({
+    const newStoreData = this.storeRepository.create({
       name: createStoreDto.name,
       price: createStoreDto.price,
       created_by: userPayload.id,
@@ -64,7 +63,10 @@ export class StoreService {
       fee_id: fee?.id,
     });
 
-    return this.storeRepository.save(newStore);
+    const newStore = await this.storeRepository.save(newStoreData);
+
+    fee.store_id = newStore.id;
+    await fee.save()
   }
 
   findAll(dto: FindStoreDto, userPayload: IJwtPayload) {
